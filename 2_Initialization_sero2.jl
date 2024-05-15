@@ -52,8 +52,6 @@ R0 = (m*median(βh)*βm*p_EIP)/(μm*(p_IP+bh)*(p_EIP+μm))
 
 ######################################################
 # INITIALIZE POPULATIONS
-# 0.1788 #median monotypic immunity
-# Initializing population using seroprevalence from Sarah -- 1/4 primary infection, 3/4 secondary, and rest susceptible
 u0Sh_0 = round(0.423*pop) 
 # u0Ih_1 = ones(n,a,15)*(1)
 u0Eh_1 = 0 #all Es are empty to start
