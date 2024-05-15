@@ -1,6 +1,4 @@
-using Random,Distributions,DataFrames,LinearAlgebra,CSV,JLD2,Dates
-
-@time begin
+function run_model_sims!(x,par,m,t)
         for j=1:nsims
             x = dengue_sde_2st!(x0,par,m,2)  
             newcases_all_h = vcat(x0[2],x[2])
@@ -79,5 +77,4 @@ using Random,Distributions,DataFrames,LinearAlgebra,CSV,JLD2,Dates
         
         
         end
-
 end
