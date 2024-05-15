@@ -21,6 +21,20 @@ julia_eval("a")
 
 ############################################
 # setwd("~/GitHub/sero2-model/") #set to github project repo dir if you haven't already
+# julia_install_package("Random")
+# julia_install_package_if_needed("Random")
+julia_library("Random")
+julia_library("Distributions")
+julia_library("DataFrames")
+julia_library("LinearAlgebra")
+julia_library("CSV")
+julia_library("JLD2")
+julia_library("Dates")
 
+julia_source("1_Functions_sero2.jl") # load main model function
+julia_source("2_Initialization_sero2.jl")
+julia_source("3_Runmodel_sero2.jl")
 
+julia_exists("dengue_sde_2st!")
 
+# using Random,Distributions,DataFrames,LinearAlgebra,CSV,JLD2,Dates

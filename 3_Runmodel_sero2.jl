@@ -77,44 +77,6 @@ using Random,Distributions,DataFrames,LinearAlgebra,CSV,JLD2,Dates
                     newcases_st2_h = vcat(newcases_st2_h,x[19])
                 end
         
-        CSV.write(string("output_data/testsim_",intv,"_FOIh1_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(λh1), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_FOIm1_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(λm1), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_FOIh2_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(λh2), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_FOIm2_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(λm2), writeheader=true)
-        
-        CSV.write(string("output_data/testsim_",intv,"_newcases_st1_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(newcases_st1_h), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_newcases_st2_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(newcases_st2_h), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_newcases_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(newcases_all_h), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_newcasesM_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(newcases_all_m), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_hpop_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(hpop), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_mpop_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(mpop), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_lpop_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(lpop), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_hbirths_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(hbirths), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_hdeaths_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(hdeaths), writeheader=true)
-        
-        CSV.write(string("output_data/testsim_",intv,"_S0h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(S0dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_E1h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(E1dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_E2h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(E2dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_I1h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(I1dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_I2h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(I2dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_R1h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(R1dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_R2h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(R2dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_S1h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(S1dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_S2h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(S2dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_E12h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(E12dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_E21h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(E21dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_I12h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(I12dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_I21h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(I21dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_R12h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(R12dt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_R21h_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(R21dt), writeheader=true)
-        
-        CSV.write(string("output_data/testsim_",intv,"_Lm_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(Lmdt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_Sm_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(Smdt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_Em1_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(E1mdt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_Im1_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(I1mdt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_Em2_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(E2mdt), writeheader=true)
-        CSV.write(string("output_data/testsim_",intv,"_Im2_",Dates.today(),"_R0",round(R0,digits=2),"_sero2_",j,".csv"), Tables.table(I2mdt), writeheader=true)
-
         
         end
 
