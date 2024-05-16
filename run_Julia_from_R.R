@@ -21,6 +21,9 @@ julia_eval("sqrt(2)")
 julia_command("a = sqrt(2);")
 julia_eval("a")
 
+#julia_command will print output and return nothing, 
+#julia_eval will return and print result as R object
+
 # julia documentation: https://docs.julialang.org/en/v1/ 
 
 
@@ -28,19 +31,20 @@ julia_eval("a")
 # setwd("~/GitHub/sero2-model/") #set to github project repo dir if you haven't already
 # julia_install_package("Random")
 # julia_install_package_if_needed("Random")
-julia_library("Random")
-julia_library("Distributions")
-julia_library("DataFrames")
-julia_library("LinearAlgebra")
-julia_library("CSV")
-julia_library("JLD2")
-julia_library("Dates")
+# julia_library("Random")
+# julia_library("Distributions")
+# julia_library("DataFrames")
+# julia_library("LinearAlgebra")
+# julia_library("CSV")
+# julia_library("JLD2")
+# julia_library("Dates")
+julia_library("Random,Distributions,DataFrames,LinearAlgebra,CSV,JLD2,Dates")
 
 julia_source("1_dengue_2st.jl") #load main model function
 julia_source("2_run_model_sims.jl") #load function to raun main model
 
-julia_exists("dengue_2st!")
-julia_exists("dengue_2st!")
+julia_exists("dengue_2st!") #test whether functions loaded and exist :)
+julia_exists("run_model_sims!")
 
 # using Random,Distributions,DataFrames,LinearAlgebra,CSV,JLD2,Dates
 
@@ -50,6 +54,10 @@ julia_exists("dengue_2st!")
 ##### 2. Initialize parameters and initial populations
 ###############################################################
 ###############################################################
+
+
+
+#####PARAMETERS
 # set parameters using Wearing et al paper https://www.pnas.org/doi/full/10.1073/pnas.0602960103#:~:text=Rapid%20and%20unplanned%20urbanization%2C%20increased,contributed%20to%20dramatic%20dengue%20resurgence. 
 
 # set seed for reproducibility
@@ -60,7 +68,7 @@ julia_command("tmax = 3650;")
 julia_command("tspan = collect(0.0:(tmax+500));")
 
 #set # simulations to run
-julia_command("nsims = 10;")
+julia_command("nsims = 2;")
 
 ######## HUMAN PARAMETERS ########
 julia_command("bh = 1/(60*365);") #birthrate; from paper
@@ -85,16 +93,13 @@ julia_command("mu_m = bm;") #adult mosquito mortality rate, set equal to egg lay
 julia_command("mu_mL = 0.0;") #larval mosquito death rate; initially set to 0
 julia_command("p_EIP = 1/10;") #progression rate out of mosquito E state; from paper
 
-
-
 julia_command("R0 = (m*median(beta_h)*beta_m*p_EIP)/(mu_m*(p_IP+bh)*(p_EIP+mu_m));") #check R0
 julia_eval("R0")
 
-
-julia_command("par = (bh,beta_h,bm,phi_m,beta_m,mu_m,mu_mL,mu_h,p_IIP,p_IP,p_EIP,p_R);") #save all params into one vector to input into model function
+julia_command("par = (bh,beta_h,bm,phi_m,beta_m,mu_m,mu_mL,mu_h,p_IIP,p_IP,p_EIP,p_R,m);") #save all params into one vector to input into model function
 
 ######################################################
-# Initialize compartment pop
+###########COMPARTMENTS
 julia_command("pop = 3255603;")#Initial total population of PR
 #initialize compartments
 #susceptible and recovered estimated based on Sarah's catalytic model
@@ -129,7 +134,7 @@ julia_command("sumu0Nm = sum(u0Sm+u0Em1+u0Im1+u0Em2+u0Im2) ;") #mosquito pop
 # Vector of all compartments
 julia_command("u0all = ([u0Sh_0, u0Eh_1, u0Eh_2, u0Ih_1, u0Ih_2, u0Rh_1, u0Rh_2, u0Sh_1, u0Sh_2, u0Eh_12, u0Eh_21, u0Ih_12, u0Ih_21, u0Rh_12, u0Rh_21, u0Lm, u0Sm, u0Em1, u0Em2, u0Im1, u0Im2]);")
 # initial value for all later stored compartments (see below)
-julia_command("x0 = [u0all,0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0];")
+julia_command("x0 = [u0all,0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0]")
 # list of all initial items of interest AT TIME 0
 # 1. vector of individuals in each compartment
 # 2. new human infections
@@ -159,3 +164,52 @@ julia_command("x0 = [u0all,0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0];")
 ###############################################################
 ###############################################################
 
+#test and run model 1 time (1 timestep)
+julia_command("x = dengue_2st!(x0,par,2)") #gives output
+x = julia_eval("dengue_2st!(x0,par,2)") #saves output as list
+
+result = julia_eval("run_model_sims!(nsims,tmax,x0,par)")
+#saved result is a 'JuliaObject' list of 32 1:tmax vectors
+
+#CASES
+newcases_all_h = result[[1]] #all new human infections/cases from time 1:tmax
+newcases_all_m = result[[2]] #all new mosquito infections/cases from time 1:tmax
+newcases_st1_h = result[[3]] #new serotype-1 human infections/cases from time 1:tmax
+newcases_st2_h = result[[4]] #new serotype-2 human infections/cases from time 1:tmax
+#POPULATIONS, BIRTHS, DEATHS
+hpop = result[[5]] #human population from time 1:tmax
+mpop = result[[6]] #adult mosquito population from time 1:tmax
+lpop = result[[7]] #larval mosquito population from time 1:tmax
+hbirths = result[[8]] #human births from time 1:tmax
+hdeaths = result[[9]] #human deaths from time 1:tmax
+
+#SEROTYPE-SPECIFIC FORCES OF INFECTION
+lambda_h1 = result[[10]] #mosquito-to-human serotype-1 FOI
+lambda_h2 = result[[11]] #mosquito-to-human serotype-2 FOI
+lambda_m1 = result[[12]] #human-to-mosquito serotype-1 FOI
+lambda_m2 = result[[13]] #human-to-mosquito serotype-2 FOI
+
+#HUMAN COMPARTMENTS
+S0dt = result[[14]] #Susceptible to any serotype (0 prior infections)
+E1dt = result[[15]] #Incubation compartment (IIP) after being infected by st1 for first time (only st1; no others)
+E2dt = result[[16]] #Incubation compartment (IIP) after being infected by st2 for first time (only st2; no others)
+I1dt = result[[17]] #Infectious compartment (IP) for st1 (only st1; no others)
+I2dt = result[[18]] #Infectious compartment (IP) for st2 (only st2; no others)
+R1dt = result[[19]] #Recovered and temporarily immune (cross-protection) compartment for st1 
+R2dt = result[[20]] #Recovered and temporarily immune (cross-protection) compartment for st2 
+S1dt = result[[21]] #Susceptible to st2 (but has been previously infected with st1)
+S2dt = result[[22]] #Susceptible to st1 (but has been previously infected with st2)
+E12dt = result[[23]] #Incubation compartment (IIP) after being infected by st2 (previously infected by st1)
+E21dt = result[[24]] #Incubation compartment (IIP) after being infected by st1 (previously infected by st2)
+I12dt = result[[25]] #Infectious compartment (IP) for st2 (previously infected by st1)
+I21dt = result[[26]] #Infectious compartment (IP) for st1 (previously infected by st2)
+R12dt = result[[27]] #Recovered and immune from infection with both serotypes
+R21dt = result[[28]] #Recovered and immune from infection with both serotypes
+
+#MOSQUITO COMPARTMENTS
+Lmdt = result[[29]]
+Smdt = result[[30]]
+E1mdt = result[[31]]
+E2mdt = result[[32]]
+I1mdt = result[[33]]
+I2mdt = result[[32]]

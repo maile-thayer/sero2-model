@@ -1,10 +1,10 @@
 
 
-function dengue_2st!(x,par,m,t) 
+function dengue_2st!(x,par,t) 
     
     u = x[1]
     
-    (bh,beta_h,bm,phi_m,beta_m,mu_m,mu_mL,mu_h,p_IIP,p_IP,p_EIP,p_R) = par 
+    (bh,beta_h,bm,phi_m,beta_m,mu_m,mu_mL,mu_h,p_IIP,p_IP,p_EIP,p_R,m) = par 
     
     #reshape vector into compartments
     (Sh0,Eh1,Eh2,Ih1,Ih2,Rh1,Rh2,Sh1,Sh2,Eh12,Eh21,Ih12,Ih21,Rh12,Rh21,Lm,Sm,Em1,Em2,Im1,Im2) = u
