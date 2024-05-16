@@ -1,10 +1,10 @@
 
 
-function dengue_sde_2st!(x,par,m,t) 
+function dengue_2st!(x,par,m,t) 
     
     u = x[1]
     
-    (bh,βh,bm,ψm,βm,μm,μm_L,μh,p_IIP,p_IP,p_EIP,p_R) = par 
+    (bh,beta_h,bm,phi_m,beta_m,mu_m,mu_mL,mu_h,p_IIP,p_IP,p_EIP,p_R) = par 
     
     #reshape vector into compartments
     (Sh0,Eh1,Eh2,Ih1,Ih2,Rh1,Rh2,Sh1,Sh2,Eh12,Eh21,Ih12,Ih21,Rh12,Rh21,Lm,Sm,Em1,Em2,Im1,Im2) = u
@@ -18,32 +18,32 @@ function dengue_sde_2st!(x,par,m,t)
     K_m = 2*sumNh
 
     #force of infection
-    λh1  = βh[t]*(Im1)/sumNm
-    λh2  = βh[t]*(Im2)/sumNm
-    λh1 = 1-exp(-λh1)
-    λh2 = 1-exp(-λh2)
-    λm1  = βm*(Ih1+Ih21)/sumNh
-    λm2  = βm*(Ih2+Ih12)/sumNh
-    λm1 = 1-exp(-λm1)
-    λm2 = 1-exp(-λm2)
+    lambda_h1  = beta_h[t]*(Im1)/sumNm
+    lambda_h2  = beta_h[t]*(Im2)/sumNm
+    lambda_h1 = 1-exp(-lambda_h1)
+    lambda_h2 = 1-exp(-lambda_h2)
+    lambda_m1  = beta_m*(Ih1+Ih21)/sumNh
+    lambda_m2  = beta_m*(Ih2+Ih12)/sumNh
+    lambda_m1 = 1-exp(-lambda_m1)
+    lambda_m2 = 1-exp(-lambda_m2)
     
     
     ############# HUMANS ###############
-    Sh0_trans = rand(Multinomial(Integer(Sh0),[μh; λh1*(1-μh); λh2*(1-μh)*(1-λh1);1-μh-λh1*(1-μh)-λh2*(1-μh)*(1-λh1)]))
-    Eh1_trans = rand(Multinomial(Integer(Eh1),[μh; p_IIP*(1-μh);1-μh-p_IIP*(1-μh)]))
-    Eh2_trans = rand(Multinomial(Integer(Eh2),[μh; p_IIP*(1-μh);1-μh-p_IIP*(1-μh)]))
-    Ih1_trans = rand(Multinomial(Integer(Ih1),[μh; p_IP*(1-μh);1-μh-p_IP*(1-μh)]))
-    Ih2_trans = rand(Multinomial(Integer(Ih2),[μh; p_IP*(1-μh);1-μh-p_IP*(1-μh)]))
-    Rh1_trans = rand(Multinomial(Integer(Rh1),[μh; p_R*(1-μh);1-μh-p_R*(1-μh)]))
-    Rh2_trans = rand(Multinomial(Integer(Rh2),[μh; p_R*(1-μh);1-μh-p_R*(1-μh)]))
-    Sh1_trans = rand(Multinomial(Integer(Sh1),[μh; λh2*(1-μh);1-μh-λh2*(1-μh)]))
-    Sh2_trans = rand(Multinomial(Integer(Sh2),[μh; λh1*(1-μh);1-μh-λh1*(1-μh)]))
-    Eh12_trans = rand(Multinomial(Integer(Eh12),[μh; p_IIP*(1-μh);1-μh-p_IIP*(1-μh)]))
-    Eh21_trans = rand(Multinomial(Integer(Eh21),[μh; p_IIP*(1-μh);1-μh-p_IIP*(1-μh)]))
-    Ih12_trans = rand(Multinomial(Integer(Ih12),[μh; p_IP*(1-μh);1-μh-p_IP*(1-μh)]))
-    Ih21_trans = rand(Multinomial(Integer(Ih21),[μh; p_IP*(1-μh);1-μh-p_IP*(1-μh)]))
-    Rh12_trans = rand(Multinomial(Integer(Rh12),[μh; p_R*(1-μh);1-μh-p_R*(1-μh)]))
-    Rh21_trans = rand(Multinomial(Integer(Rh21),[μh; p_R*(1-μh);1-μh-p_R*(1-μh)]))
+    Sh0_trans = rand(Multinomial(Integer(Sh0),[mu_h; lambda_h1*(1-mu_h); lambda_h2*(1-mu_h)*(1-lambda_h1);1-mu_h-lambda_h1*(1-mu_h)-lambda_h2*(1-mu_h)*(1-lambda_h1)]))
+    Eh1_trans = rand(Multinomial(Integer(Eh1),[mu_h; p_IIP*(1-mu_h);1-mu_h-p_IIP*(1-mu_h)]))
+    Eh2_trans = rand(Multinomial(Integer(Eh2),[mu_h; p_IIP*(1-mu_h);1-mu_h-p_IIP*(1-mu_h)]))
+    Ih1_trans = rand(Multinomial(Integer(Ih1),[mu_h; p_IP*(1-mu_h);1-mu_h-p_IP*(1-mu_h)]))
+    Ih2_trans = rand(Multinomial(Integer(Ih2),[mu_h; p_IP*(1-mu_h);1-mu_h-p_IP*(1-mu_h)]))
+    Rh1_trans = rand(Multinomial(Integer(Rh1),[mu_h; p_R*(1-mu_h);1-mu_h-p_R*(1-mu_h)]))
+    Rh2_trans = rand(Multinomial(Integer(Rh2),[mu_h; p_R*(1-mu_h);1-mu_h-p_R*(1-mu_h)]))
+    Sh1_trans = rand(Multinomial(Integer(Sh1),[mu_h; lambda_h2*(1-mu_h);1-mu_h-lambda_h2*(1-mu_h)]))
+    Sh2_trans = rand(Multinomial(Integer(Sh2),[mu_h; lambda_h1*(1-mu_h);1-mu_h-lambda_h1*(1-mu_h)]))
+    Eh12_trans = rand(Multinomial(Integer(Eh12),[mu_h; p_IIP*(1-mu_h);1-mu_h-p_IIP*(1-mu_h)]))
+    Eh21_trans = rand(Multinomial(Integer(Eh21),[mu_h; p_IIP*(1-mu_h);1-mu_h-p_IIP*(1-mu_h)]))
+    Ih12_trans = rand(Multinomial(Integer(Ih12),[mu_h; p_IP*(1-mu_h);1-mu_h-p_IP*(1-mu_h)]))
+    Ih21_trans = rand(Multinomial(Integer(Ih21),[mu_h; p_IP*(1-mu_h);1-mu_h-p_IP*(1-mu_h)]))
+    Rh12_trans = rand(Multinomial(Integer(Rh12),[mu_h; p_R*(1-mu_h);1-mu_h-p_R*(1-mu_h)]))
+    Rh21_trans = rand(Multinomial(Integer(Rh21),[mu_h; p_R*(1-mu_h);1-mu_h-p_R*(1-mu_h)]))
     #deaths
     deaths_Sh0 = Sh0_trans[1]
     deaths_Eh1 = Eh1_trans[1]
@@ -101,10 +101,10 @@ function dengue_sde_2st!(x,par,m,t)
     
     
     ############# MOSQUITOES ###############
-    Lm_trans = rand(Multinomial(Integer(Lm),[μm_L; ψm*(1-μm_L);1-μm_L-ψm*(1-μm_L)]))
-    Sm_trans = rand(Multinomial(Integer(Sm),[μm; λm1*(1-μm); λm2*(1-μm)*(1-λm1);1-μm-λm1*(1-μm)-λm2*(1-μm)*(1-λm1)]))
-    Em1_trans = rand(Multinomial(Integer(Em1),[μm; p_EIP*(1-μm);1-μm-p_EIP*(1-μm)]))
-    Em2_trans = rand(Multinomial(Integer(Em2),[μm; p_EIP*(1-μm);1-μm-p_EIP*(1-μm)]))
+    Lm_trans = rand(Multinomial(Integer(Lm),[mu_mL; phi_m*(1-mu_mL);1-mu_mL-phi_m*(1-mu_mL)]))
+    Sm_trans = rand(Multinomial(Integer(Sm),[mu_m; lambda_m1*(1-mu_m); lambda_m2*(1-mu_m)*(1-lambda_m1);1-mu_m-lambda_m1*(1-mu_m)-lambda_m2*(1-mu_m)*(1-lambda_m1)]))
+    Em1_trans = rand(Multinomial(Integer(Em1),[mu_m; p_EIP*(1-mu_m);1-mu_m-p_EIP*(1-mu_m)]))
+    Em2_trans = rand(Multinomial(Integer(Em2),[mu_m; p_EIP*(1-mu_m);1-mu_m-p_EIP*(1-mu_m)]))
     
     #egg laying and deaths
     eggs = rand(Binomial(Integer(K_m),bm)) 
@@ -112,12 +112,12 @@ function dengue_sde_2st!(x,par,m,t)
     deaths_Sm = Sm_trans[1] 
     deaths_Em1 = Em1_trans[1]
     deaths_Em2 = Em2_trans[1]
-    deaths_Im1 = rand(Binomial(Im1,μm)) 
-    deaths_Im2 = rand(Binomial(Im2,μm)) 
+    deaths_Im1 = rand(Binomial(Im1,mu_m)) 
+    deaths_Im2 = rand(Binomial(Im2,mu_m)) 
 
     #transitions
-    Lm_Sm = Lm_trans[2] #ψ*I*δt
-    Sm_Em1 = Sm_trans[2] #β*c*I/N*S*δt
+    Lm_Sm = Lm_trans[2] 
+    Sm_Em1 = Sm_trans[2] 
     Sm_Em2 = Sm_trans[3]
     Em1_Im1 = Em1_trans[2] 
     Em2_Im2 = Em2_trans[2] 
@@ -147,5 +147,5 @@ function dengue_sde_2st!(x,par,m,t)
     tot_births = births
     tot_deaths = deaths_Sh0+deaths_Eh1+deaths_Eh2+deaths_Ih1+deaths_Ih2+deaths_Rh1+deaths_Rh2+deaths_Sh1+deaths_Sh2+deaths_Eh21+deaths_Eh12+deaths_Ih12+deaths_Ih21+deaths_Rh12+deaths_Rh21
     
-    return [du,newcases_all_h,newcases_m,h_pop,m_pop,tot_births,tot_deaths,λh1,λh2,λm1,λm2,newcases_1_h,0,0,0,new2cases,l_pop,newcases_st1_h,newcases_st2_h]
+    return [du,newcases_all_h,newcases_m,h_pop,m_pop,tot_births,tot_deaths,lambda_h1,lambda_h2,lambda_m1,lambda_m2,newcases_1_h,0,0,0,new2cases,l_pop,newcases_st1_h,newcases_st2_h]
 end;

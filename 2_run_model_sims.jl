@@ -8,10 +8,10 @@ function run_model_sims!(x,par,m,t)
             lpop = vcat(x0[17],x[17])
             hbirths = vcat(x0[6],x[6])
             hdeaths = vcat(x0[7],x[7])
-            λh1 = vcat(x0[8],(x[8]))
-            λh2 = vcat(x0[9],(x[9]))
-            λm1 = vcat(x0[10],(x[10]))
-            λm2 = vcat(x0[11],(x[11]))
+            lambda_h1 = vcat(x0[8],(x[8]))
+            lambda_h2 = vcat(x0[9],(x[9]))
+            lambda_m1 = vcat(x0[10],(x[10]))
+            lambda_m2 = vcat(x0[11],(x[11]))
             S0dt = vcat(0,(x[1][1]))
             E1dt = vcat(0,(x[1][2]))
             E2dt = vcat(0,(x[1][3]))
@@ -46,10 +46,10 @@ function run_model_sims!(x,par,m,t)
                     lpop = vcat(lpop,x[17])
                     hbirths = vcat(hbirths,x[6])
                     hdeaths = vcat(hdeaths,x[7])
-                    λh1 = vcat(λh1,(x[8]))
-                    λh2 = vcat(λh2,(x[9]))
-                    λm1 = vcat(λm1,(x[10]))
-                    λm2 = vcat(λm2,(x[11]))
+                    lambda_h1 = vcat(lambda_h1,(x[8]))
+                    lambda_h2 = vcat(lambda_h2,(x[9]))
+                    lambda_m1 = vcat(lambda_m1,(x[10]))
+                    lambda_m2 = vcat(lambda_m2,(x[11]))
                     S0dt = vcat(S0dt,(x[1][1]))
                     E1dt = vcat(E1dt,(x[1][2]))
                     E2dt = vcat(E2dt,(x[1][3]))
@@ -74,7 +74,11 @@ function run_model_sims!(x,par,m,t)
                     newcases_st1_h = vcat(newcases_st1_h,x[18])
                     newcases_st2_h = vcat(newcases_st2_h,x[19])
                 end
-        
-        
         end
+        
+        return[newcases_all_h,newcases_all_m,newcases_st1_h,newcases_st2_h,
+        hpop,mpop,lpop,hbirths,hdeaths,
+        lambda_h1,lambda_h2,lambda_m1,lambda_m2,
+        S0dt,E1dt,E2dt,I1dt,I2dt,R1dt,R2dt,S1dt,S2dt,E12dt,E21dt,I12dt,I21dt,R12dt,R21dt,
+        Lmdt,Smdt,E1mdt,E2mdt,I1mdt,I2mdt]
 end
