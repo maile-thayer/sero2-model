@@ -6,7 +6,9 @@
 ###############################################################
 
 # install.packages("JuliaCall") 
-
+library(ggplot2)
+library(scales)
+library(RColorBrewer)
 library(JuliaCall)
 
 # install_julia() #DONT RUN UNLESS YOU DON'T HAVE JULIA INSTALLED
@@ -14,13 +16,11 @@ julia <- julia_setup(JULIA_HOME = "C:/Users/ruu6/AppData/Local/Programs/Julia-1.
 
 ############################################
 # need "julia_..." in front of command to invoke program
-# put commands in parentheses ""
-#test out sqrt(2)
+# put commands in parentheses and quotation marks ("")
+# if you add a semicolo at the end of the command, it will suppress the output
 julia_eval("sqrt(2)")
-#assign
 julia_command("a = sqrt(2);")
 julia_eval("a")
-
 #julia_command will print output and return nothing, 
 #julia_eval will return and print result as R object
 
@@ -28,34 +28,28 @@ julia_eval("a")
 
 
 ############################################
-# setwd("~/GitHub/sero2-model/") #set to github project repo dir if you haven't already
+# setwd("~/GitHub/sero2-model/") #set working directory to github project repo if you haven't already
 # julia_install_package("Random")
 # julia_install_package_if_needed("Random")
-# julia_library("Random")
-# julia_library("Distributions")
-# julia_library("DataFrames")
-# julia_library("LinearAlgebra")
-# julia_library("CSV")
-# julia_library("JLD2")
-# julia_library("Dates")
 julia_library("Random,Distributions,DataFrames,LinearAlgebra,CSV,JLD2,Dates")
 
 julia_source("1_dengue_2st.jl") #load main model function
-julia_source("2_run_model_sims.jl") #load function to raun main model
+julia_source("2_run_model_sims.jl") #load function to run main model
 
 julia_exists("dengue_2st!") #test whether functions loaded and exist :)
 julia_exists("run_model_sims!")
 
-# using Random,Distributions,DataFrames,LinearAlgebra,CSV,JLD2,Dates
+
+
+
+
 
 
 ###############################################################
 ###############################################################
-##### 2. Initialize parameters and initial populations
+##### 2. Initialize parameters and populations/compartments
 ###############################################################
 ###############################################################
-
-
 
 #####PARAMETERS
 # set parameters using Wearing et al paper https://www.pnas.org/doi/full/10.1073/pnas.0602960103#:~:text=Rapid%20and%20unplanned%20urbanization%2C%20increased,contributed%20to%20dramatic%20dengue%20resurgence. 
@@ -64,17 +58,18 @@ julia_exists("run_model_sims!")
 julia_command("Random.seed!(123);")
 
 # set timeframe
-julia_command("tmax = 3650;")
+tmax = julia_eval("tmax = 36500;")
 julia_command("tspan = collect(0.0:(tmax+500));")
 
-#set # simulations to run
-julia_command("nsims = 2;")
+#set # simulations to run-- doing it in R
+# nsims=2
+nsims = julia_eval("nsims = 10;")
 
 ######## HUMAN PARAMETERS ########
 julia_command("bh = 1/(60*365);") #birthrate; from paper
 julia_command("m = 2;") #initial ratio of mosquitoes to humans; from literature
 julia_command("c = 0.5;") #contact rate (biting rate); from paper
-julia_command("p_h = 0.44;") #probability of a human being infected by an infected mosquito bite; paper 0.38
+julia_command("p_h = 0.38;") #probability of a human being infected by an infected mosquito bite; paper 0.38
 julia_command("beta_h = c*p_h*((0.3 *(cos.(((2*pi*tspan).+ 5.295594)/365))).+ 1);") #seasonal transmission- mosquito to human
 julia_command("mu_h = bh;") #human death rate; set equal to birthrate
 julia_command("p_IIP = 1/5;") #progression rate out of human E state; from paper
@@ -134,7 +129,7 @@ julia_command("sumu0Nm = sum(u0Sm+u0Em1+u0Im1+u0Em2+u0Im2) ;") #mosquito pop
 # Vector of all compartments
 julia_command("u0all = ([u0Sh_0, u0Eh_1, u0Eh_2, u0Ih_1, u0Ih_2, u0Rh_1, u0Rh_2, u0Sh_1, u0Sh_2, u0Eh_12, u0Eh_21, u0Ih_12, u0Ih_21, u0Rh_12, u0Rh_21, u0Lm, u0Sm, u0Em1, u0Em2, u0Im1, u0Im2]);")
 # initial value for all later stored compartments (see below)
-julia_command("x0 = [u0all,0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0]")
+julia_command("x0 = [u0all,0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0];")
 # list of all initial items of interest AT TIME 0
 # 1. vector of individuals in each compartment
 # 2. new human infections
@@ -160,7 +155,7 @@ julia_command("x0 = [u0all,0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0]")
 
 ###############################################################
 ###############################################################
-##### 3. Run model simulations and visualize output
+##### 3. Run model simulations and store output
 ###############################################################
 ###############################################################
 
@@ -169,7 +164,7 @@ julia_command("x = dengue_2st!(x0,par,2)") #gives output
 x = julia_eval("dengue_2st!(x0,par,2)") #saves output as list
 
 result = julia_eval("run_model_sims!(nsims,tmax,x0,par)")
-#saved result is a 'JuliaObject' list of 32 1:tmax vectors
+#saved result is a 'JuliaObject' list of 34 nsims*tmax matrices 
 
 #CASES
 newcases_all_h = result[[1]] #all new human infections/cases from time 1:tmax
@@ -201,15 +196,101 @@ S1dt = result[[21]] #Susceptible to st2 (but has been previously infected with s
 S2dt = result[[22]] #Susceptible to st1 (but has been previously infected with st2)
 E12dt = result[[23]] #Incubation compartment (IIP) after being infected by st2 (previously infected by st1)
 E21dt = result[[24]] #Incubation compartment (IIP) after being infected by st1 (previously infected by st2)
-I12dt = result[[25]] #Infectious compartment (IP) for st2 (previously infected by st1)
+I12dt = result[[25]]#Infectious compartment (IP) for st2 (previously infected by st1)
 I21dt = result[[26]] #Infectious compartment (IP) for st1 (previously infected by st2)
 R12dt = result[[27]] #Recovered and immune from infection with both serotypes
 R21dt = result[[28]] #Recovered and immune from infection with both serotypes
 
-#MOSQUITO COMPARTMENTS
-Lmdt = result[[29]]
-Smdt = result[[30]]
-E1mdt = result[[31]]
-E2mdt = result[[32]]
-I1mdt = result[[33]]
-I2mdt = result[[32]]
+#MOSQUITO COMPARTMENTS -- can only be infected once
+Lmdt = result[[29]]#Development (Larval) compartment (no infections)
+Smdt = result[[30]]#Susceptible to any serotype 
+E1mdt = result[[31]]#Incubation compartment (EIP) after being infected by st1
+E2mdt = result[[32]] #Incubation compartment (EIP) after being infected by st2
+I1mdt = result[[33]]#Infectious compartment after being infected by st1
+I2mdt = result[[34]] #Infectious compartment after being infected by st2
+
+
+
+###############################################################
+###############################################################
+##### 4. Plot output
+###############################################################
+###############################################################
+colors <- brewer.pal(8, name = 'Dark2')
+
+
+############### NEWCASES 
+#all (humans)
+df <- as.data.frame(newcases_all_h)
+df$median <- apply(df, 1,median)
+plot(NA,NA,xlim = c(0,tmax),ylim=c(0,max(df)),ylab="New infections",xlab = "Days",bty="n")
+for (i in 1:nsims){
+  lines(1:tmax,df[,i],col=alpha(colors[1],0.15))
+}
+lines(1:tmax,df$median,col=colors[1])
+
+#serotype 1 (humans)
+df <- as.data.frame(newcases_st1_h)
+df$median <- apply(df, 1,median)
+plot(NA,NA,xlim = c(0,tmax),ylim=c(0,max(df)),ylab="New infections",xlab = "Days",bty="n")
+for (i in 1:nsims){
+  lines(1:tmax,df[,i],col=alpha(colors[2],0.15))
+}
+lines(1:tmax,df$median,col=colors[2])
+
+#serotype 2 (humans)
+df <- as.data.frame(newcases_st2_h)
+df$median <- apply(df, 1,median)
+plot(NA,NA,xlim = c(0,tmax),ylim=c(0,max(df)),ylab="New infections",xlab = "Days",bty="n")
+for (i in 1:nsims){
+  lines(1:tmax,df[,i],col=alpha(colors[3],0.15))
+}
+lines(1:tmax,df$median,col=colors[3])
+
+
+
+############### FOI 
+# serotype 1 (humans)
+df <- as.data.frame(lambda_h1)
+df$median <- apply(df, 1,median)
+plot(NA,NA,xlim = c(0,tmax),ylim=c(0,max(df)),ylab="New infections",xlab = "Days",bty="n")
+for (i in 1:nsims){
+  lines(1:tmax,df[,i],col=alpha(colors[4],0.15))
+}
+lines(1:tmax,df$median,col=colors[4])
+
+# serotype 2 (humans)
+df <- as.data.frame(lambda_h2)
+df$median <- apply(df, 1,median)
+plot(NA,NA,xlim = c(0,tmax),ylim=c(0,max(df)),ylab="New infections",xlab = "Days",bty="n")
+for (i in 1:nsims){
+  lines(1:tmax,df[,i],col=alpha(colors[5],0.15))
+}
+lines(1:tmax,df$median,col=colors[5])
+
+
+
+
+##### STACKED AREA PLOTS FOR COMPARTMENTS 
+
+S.col <- brewer.pal(9, "GnBu")[7:9]
+E.col <- brewer.pal(9, "Purples")[6:9]
+I.col <- brewer.pal(9, "YlOrRd")[6:9]
+R.col <- brewer.pal(9, "BuGn")[6:9]
+
+source("data_stackedareaplot.R")
+
+data <- data_stackedareaplot(S0dt,S1dt,S2dt,
+                             E1dt,E2dt,E12dt,E21dt,
+                             I1dt,I2dt,I12dt,I21dt,
+                             R1dt,R2dt,R12dt,R21dt,
+                             nsims=10,tmax=36500)
+
+#Population distribution of each compartment over timeframe
+ggplot(data, aes(x=time, y=value_perc, fill=group)) + 
+  geom_area() +
+  theme_classic() +
+  ggtitle("2-serotype model") + 
+  scale_fill_manual(values=c(R.col,S.col,E.col,I.col))
+
+

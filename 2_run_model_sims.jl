@@ -1,5 +1,39 @@
 function run_model_sims!(nsims,tmax,x0,par)
-        let        
+        let
+        global newcases_all_h_sims = Array{Float64}(undef, tmax, nsims)
+        global newcases_all_m_sims = Array{Float64}(undef, tmax, nsims)
+        global hpop_sims = Array{Float64}(undef, tmax, nsims)
+        global mpop_sims = Array{Float64}(undef, tmax, nsims)
+        global lpop_sims = Array{Float64}(undef, tmax, nsims)
+        global hbirths_sims = Array{Float64}(undef, tmax, nsims)
+        global hdeaths_sims = Array{Float64}(undef, tmax, nsims)
+        global lambda_h1_sims = Array{Float64}(undef, tmax, nsims)
+        global lambda_h2_sims = Array{Float64}(undef, tmax, nsims)
+        global lambda_m1_sims = Array{Float64}(undef, tmax, nsims)
+        global lambda_m2_sims = Array{Float64}(undef, tmax, nsims)
+        global S0dt_sims = Array{Float64}(undef, tmax, nsims)
+        global E1dt_sims = Array{Float64}(undef, tmax, nsims)
+        global E2dt_sims = Array{Float64}(undef, tmax, nsims)
+        global I1dt_sims = Array{Float64}(undef, tmax, nsims)
+        global I2dt_sims = Array{Float64}(undef, tmax, nsims)
+        global R1dt_sims = Array{Float64}(undef, tmax, nsims)
+        global R2dt_sims = Array{Float64}(undef, tmax, nsims)
+        global S1dt_sims = Array{Float64}(undef, tmax, nsims)
+        global S2dt_sims = Array{Float64}(undef, tmax, nsims)
+        global E12dt_sims = Array{Float64}(undef, tmax, nsims)
+        global E21dt_sims = Array{Float64}(undef, tmax, nsims)
+        global I12dt_sims = Array{Float64}(undef, tmax, nsims)
+        global I21dt_sims = Array{Float64}(undef, tmax, nsims)
+        global R12dt_sims = Array{Float64}(undef, tmax, nsims)
+        global R21dt_sims = Array{Float64}(undef, tmax, nsims)
+        global Lmdt_sims = Array{Float64}(undef, tmax, nsims)
+        global Smdt_sims = Array{Float64}(undef, tmax, nsims)
+        global E1mdt_sims = Array{Float64}(undef, tmax, nsims)
+        global E2mdt_sims = Array{Float64}(undef, tmax, nsims)
+        global I1mdt_sims = Array{Float64}(undef, tmax, nsims)
+        global I2mdt_sims = Array{Float64}(undef, tmax, nsims)
+        global newcases_st1_h_sims = Array{Float64}(undef, tmax, nsims)
+        global newcases_st2_h_sims = Array{Float64}(undef, tmax, nsims)
         for j=1:nsims
             global x = dengue_2st!(x0,par,2)  
             global newcases_all_h = vcat(x0[2],x[2])
@@ -75,12 +109,49 @@ function run_model_sims!(nsims,tmax,x0,par)
                     newcases_st1_h = vcat(newcases_st1_h,x[18])
                     newcases_st2_h = vcat(newcases_st2_h,x[19])
                 end
+                
+        newcases_all_h_sims[:,j] = newcases_all_h 
+        newcases_all_m_sims[:,j] = newcases_all_m
+        hpop_sims[:,j] = hpop
+        mpop_sims[:,j] = mpop
+        lpop_sims[:,j] = lpop
+        hbirths_sims[:,j] = hbirths
+        hdeaths_sims[:,j] = hdeaths
+        lambda_h1_sims[:,j] = lambda_h1
+        lambda_h2_sims[:,j] = lambda_h2
+        lambda_m1_sims[:,j] = lambda_m1
+        lambda_m2_sims[:,j] = lambda_m2
+        S0dt_sims[:,j] = S0dt
+        E1dt_sims[:,j] = E1dt
+        E2dt_sims[:,j] = E2dt
+        I1dt_sims[:,j] = I1dt
+        I2dt_sims[:,j] = I2dt
+        R1dt_sims[:,j] = R1dt
+        R2dt_sims[:,j] = R2dt
+        S1dt_sims[:,j] = S1dt
+        S2dt_sims[:,j] = S2dt
+        E12dt_sims[:,j] = E12dt
+        E21dt_sims[:,j] = E21dt
+        I12dt_sims[:,j] = I12dt
+        I21dt_sims[:,j] = I21dt
+        R12dt_sims[:,j] = R12dt
+        R21dt_sims[:,j] = R21dt
+        Lmdt_sims[:,j] = Lmdt
+        Smdt_sims[:,j] = Smdt
+        E1mdt_sims[:,j] = E1mdt
+        E2mdt_sims[:,j] = E2mdt
+        I1mdt_sims[:,j] = I1mdt
+        I2mdt_sims[:,j] = I2mdt
+        newcases_st1_h_sims[:,j] = newcases_st1_h
+        newcases_st2_h_sims[:,j] = newcases_st2_h
+        
+        
         end
         
-        return[newcases_all_h,newcases_all_m,newcases_st1_h,newcases_st2_h,
-        hpop,mpop,lpop,hbirths,hdeaths,
-        lambda_h1,lambda_h2,lambda_m1,lambda_m2,
-        S0dt,E1dt,E2dt,I1dt,I2dt,R1dt,R2dt,S1dt,S2dt,E12dt,E21dt,I12dt,I21dt,R12dt,R21dt,
-        Lmdt,Smdt,E1mdt,E2mdt,I1mdt,I2mdt]
+        return[newcases_all_h_sims,newcases_all_m_sims,newcases_st1_h_sims,newcases_st2_h_sims,
+        hpop_sims,mpop_sims,lpop_sims,hbirths_sims,hdeaths_sims,
+        lambda_h1_sims,lambda_h2_sims,lambda_m1_sims,lambda_m2_sims,
+        S0dt_sims,E1dt_sims,E2dt_sims,I1dt_sims,I2dt_sims,R1dt_sims,R2dt_sims,S1dt_sims,S2dt_sims,E12dt_sims,E21dt_sims,I12dt_sims,I21dt_sims,R12dt_sims,R21dt_sims,
+        Lmdt_sims,Smdt_sims,E1mdt_sims,E2mdt_sims,I1mdt_sims,I2mdt_sims]
         end
 end
