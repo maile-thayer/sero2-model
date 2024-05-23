@@ -14,35 +14,17 @@ library(JuliaCall)
 julia <- julia_setup(JULIA_HOME = "C:/Users/EYQ9/AppData/Local/Programs/Julia-1.10.3/bin", force = T, rebuild = T)
 
 ############################################
-# need "julia_..." in front of command to invoke program
-# put commands in parentheses and quotation marks ("")
-# if you add a semicolo at the end of the command, it will suppress the output
-julia_eval("sqrt(2)")
-julia_command("a = sqrt(2);")
-julia_eval("a")
-# julia_command will print output and return nothing,
-# julia_eval will return and print result as R object
-
-# julia documentation: https://docs.julialang.org/en/v1/
-
-
-############################################
 # setwd("~/GitHub/sero2-model/") #set working directory to github project repo if you haven't already
 # julia_install_package("Random")
 # julia_install_package_if_needed("Random")
-julia_library("Random,Distributions,DataFrames,LinearAlgebra,CSV,JLD2,Dates")
+julia_library("Random, Distributions, DataFrames, LinearAlgebra, CSV, JLD2, Dates")
 
-julia_source("1_dengue_2st.jl") # load main model function
+julia_source("1_dengue_2st_MAJ.jl") # load main model function
 julia_source("2_run_model_sims.jl") # load function to run main model
 
 julia_exists("dengue_2st!") # test whether functions loaded and exist :)
+julia_exists("multinom_samp")
 julia_exists("run_model_sims!")
-
-
-
-
-
-
 
 ###############################################################
 ###############################################################
@@ -55,7 +37,7 @@ julia_exists("run_model_sims!")
 
 
 # set timeframe
-tmax <- julia_eval("tmax = 365*50;")
+tmax <- julia_eval("tmax = 365*20;")
 julia_command("tspan = collect(0.0:(tmax+365));")
 
 # set # simulations to run-- doing it in R
@@ -100,7 +82,7 @@ attach(model_parameters)
 m*c*p_m*1/p_IP*exp(-mu_m/p_EIP) * c*p_h*1/mu_m
 
 c * p_m * 100 #lambdam
-c * p_m * 100 * m*pop * 1/p_IP
+c * p_m * 100 * m*3255603 * 1/p_IP
 
 julia_command("par = (bh,beta_h,bm,phi_m,beta_m,mu_m,mu_mL,mu_h,p_IIP,p_IP,p_EIP,p_R,m);") # save all params into one vector to input into model function
 
@@ -113,8 +95,8 @@ julia_assign("pop", pop) # Initial total population of PR
 # all E compartments empty to start
 # start with 25 in each infectious human compartment
 n_stype <- 2
-initial_s <- 0.4
-initial_s2 <- c(0.2, 0.2)
+initial_s <- 0.2
+initial_s2 <- c(0.3, 0.3)
 initial_r1 <- c(0.0, 0.0)
 initial_r2 <- 0.2
 sum(initial_s + sum(initial_s2) + sum(initial_r1) + initial_r2)
@@ -282,7 +264,11 @@ df1 <- as.data.frame(newcases_st1_h)
 df2 <- as.data.frame(newcases_st2_h)
 # df1$median <- apply(df1, 1, median)
 # df2$median <- apply(df2, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df1)), ylab = "New infections", xlab = "Days", bty = "n")
+df1 <- as.data.frame(I1dt + I21dt)
+df2 <- as.data.frame(I2dt + I12dt)
+# df1 <- as.data.frame(I1mdt)
+# df2 <- as.data.frame(I2mdt)
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df1, df2)), ylab = "New infections", xlab = "Days", bty = "n")
 for (i in 1:nsims) {
   lines(1:tmax, df1[, i], col = alpha(colors[2], 0.15))
 }
@@ -292,19 +278,13 @@ for (i in 1:nsims) {
 }
 # lines(1:tmax, df2$median, col = colors[3])
 
-df1 <- as.data.frame(I1dt + I21dt)
-df2 <- as.data.frame(I2dt + I12dt)
-# df1 <- as.data.frame(I1mdt)
-# df2 <- as.data.frame(I2mdt)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df1)), ylab = "Total I", xlab = "Days", bty = "n")
+
+df <- as.data.frame(I1dt)
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "output", xlab = "Days", bty = "n")
 for (i in 1:nsims) {
-  lines(1:tmax, df1[, i], col = alpha(colors[2], 0.15))
+  lines(1:tmax, df[, i], col = alpha(colors[2], 0.15))
 }
-# lines(1:tmax, df1$median, col = colors[2])
-for (i in 1:nsims) {
-  lines(1:tmax, df2[, i], col = alpha(colors[3], 0.15))
-}
-# lines(1:tmax, df2$median, col = colors[3])
+
 
 # serotype 2 (humans)
 # df <- as.data.frame(newcases_st2_h)
