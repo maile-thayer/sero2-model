@@ -17,7 +17,7 @@ julia <- julia_setup(JULIA_HOME = "C:/Users/ruu6/AppData/Local/Programs/Julia-1.
 ############################################
 # need "julia_..." in front of command to invoke program
 # put commands in parentheses and quotation marks ("")
-# if you add a semicolo at the end of the command, it will suppress the output
+# if you add a semicolon at the end of the command, it will suppress the output
 julia_eval("sqrt(2)")
 julia_command("a = sqrt(2);")
 julia_eval("a")
@@ -43,8 +43,6 @@ julia_exists("run_model_sims!")
 
 
 
-
-
 ###############################################################
 ###############################################################
 ##### 2. Initialize parameters and populations/compartments
@@ -57,13 +55,13 @@ julia_exists("run_model_sims!")
 # set seed for reproducibility
 julia_command("Random.seed!(123);")
 
-# set timeframe
-tmax = julia_eval("tmax = 36500;")
+# set timeframe (in days; starts at 100 years)
+tmax = julia_eval("tmax = 3650;")
 julia_command("tspan = collect(0.0:(tmax+500));")
 
 #set # simulations to run-- doing it in R
 # nsims=2
-nsims = julia_eval("nsims = 10;")
+nsims = julia_eval("nsims = 2;")
 
 ######## HUMAN PARAMETERS ########
 julia_command("bh = 1/(60*365);") #birthrate; from paper
@@ -73,9 +71,7 @@ julia_command("p_h = 0.38;") #probability of a human being infected by an infect
 julia_command("beta_h = c*p_h*((0.3 *(cos.(((2*pi*tspan).+ 5.295594)/365))).+ 1);") #seasonal transmission- mosquito to human
 julia_command("mu_h = bh;") #human death rate; set equal to birthrate
 julia_command("p_IIP = 1/5;") #progression rate out of human E state; from paper
-
-julia_command("p_IP = 1/6;")#progression rate out of human I state; from paper
-
+julia_command("p_IP = 1/6;") #progression rate out of human I state; from paper
 julia_command("p_R = 1/365;") #progression rate out of human cross-protective state; currently at 1 year; from paper
 
 
@@ -123,7 +119,7 @@ julia_command("u0Im1 = 0;")
 julia_command("u0Em2 = 0;")
 julia_command("u0Im2 = 0;")
 
-julia_command("sumu0Nm = sum(u0Sm+u0Em1+u0Im1+u0Em2+u0Im2) ;") #mosquito pop
+julia_command("sumu0Nm = sum(u0Sm+u0Em1+u0Im1+u0Em2+u0Im2);") #mosquito pop
 
 ######
 # Vector of all compartments
@@ -160,10 +156,10 @@ julia_command("x0 = [u0all,0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0];")
 ###############################################################
 
 #test and run model 1 time (1 timestep)
-julia_command("x = dengue_2st!(x0,par,2)") #gives output
-x = julia_eval("dengue_2st!(x0,par,2)") #saves output as list
+# julia_command("x = dengue_2st!(x0,par,2)") #gives output
+# x = julia_eval("dengue_2st!(x0,par,2)") #saves output as list
 
-result = julia_eval("run_model_sims!(nsims,tmax,x0,par)")
+result = julia_eval("run_model_sims!(nsims,tmax,x0,par)") #can take a little while to run
 #saved result is a 'JuliaObject' list of 34 nsims*tmax matrices 
 
 #CASES
@@ -270,7 +266,6 @@ lines(1:tmax,df$median,col=colors[5])
 
 
 
-
 ##### STACKED AREA PLOTS FOR COMPARTMENTS 
 
 S.col <- brewer.pal(9, "GnBu")[7:9]
@@ -284,7 +279,7 @@ data <- data_stackedareaplot(S0dt,S1dt,S2dt,
                              E1dt,E2dt,E12dt,E21dt,
                              I1dt,I2dt,I12dt,I21dt,
                              R1dt,R2dt,R12dt,R21dt,
-                             nsims=10,tmax=36500)
+                             nsims=nsims,tmax=tmax)
 
 #Population distribution of each compartment over timeframe
 ggplot(data, aes(x=time, y=value_perc, fill=group)) + 
