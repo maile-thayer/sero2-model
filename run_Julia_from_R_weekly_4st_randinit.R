@@ -20,11 +20,11 @@ julia <- julia_setup(JULIA_HOME = "C:/Users/ruu6/AppData/Local/Programs/Julia-1.
 julia_library("Random, Distributions, DataFrames, LinearAlgebra, CSV, JLD2, Dates")
 
 julia_source("1_dengue_4st.jl") # load main model function
-julia_source("2_run_4st_model_sims.jl") # load function to run main model
+julia_source("2_run_4st_model_sims_randinit.jl") # load function to run main model
 
 julia_exists("dengue_4st!") # test whether functions loaded and exist :)
 julia_exists("multinom_samp")
-julia_exists("run_4st_model_sims!")
+julia_exists("run_4st_model_sims_randinit!")
 
 ##############################################################
 ###############################################################
@@ -63,7 +63,7 @@ model_parameters <- list(
   #mosquito
   bm = 1/14 * 7, # mosquito egg laying rate ("birth rate"); from paper
   phi_m = 1, # emergence rate; set equal to 1 to stabilize model dynamics
-  p_m = 0.38, # probability of mosquito being infected by biting infectious human; set equal to p_h like paper
+  p_m = 0.3, # probability of mosquito being infected by biting infectious human; set equal to p_h like paper
   # beta_m = 0.5 * 0.38, # human-to-mosquito transmission rate
   mu_m = 1/14 * 7, # adult mosquito mortality rate, set equal to egg laying rate
   mu_mL = 0.0 * 7, # larval mosquito death rate; initially set to 0
@@ -96,27 +96,40 @@ julia_assign("pop", pop) # Initial total population of PR
 # susceptible and recovered estimated based on Sarah's catalytic model
 # all E compartments empty to start
 # start with 25 in each infectious human compartment
+
+# init_comp_rand = Array{Float64}(undef, 9, nsims)
+# 
+# for (i in 1:nsims)(
+#   
+# )
+init_sims <- rdirichlet(nsims, c(0.2,0.025, 0.15, 0.05, 0.175,0.175, 0.025, 0.05, 0.15))
+
 n_stype <- 4
-initial_s <- 0.2
-initial_s2 <- c(0.1, 0.1, 0.1, 0.1)#c(0.025, 0.15, 0.05, 0.175) #0.4
+initial_s <- init_sims[,1]
+initial_s2 <- init_sims[,c(2:5)] #c(0.1, 0.1, 0.1, 0.1)#c(0.025, 0.15, 0.05, 0.175) #0.4
 initial_r1 <- c(0.0, 0.0, 0.0, 0.0)
-initial_r2 <- c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
-sum(initial_s + sum(initial_s2) + sum(initial_r1) + sum(initial_r2))
+initial_r2 <- init_sims[,c(6:9)]#c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
+(initial_s + rowSums(initial_s2) + sum(initial_r1) + rowSums(initial_r2))
 
 E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
-I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
+I_init <- matrix(5, nrow=(1+n_stype), ncol=n_stype)
 S_naive_init <- round(initial_s * pop) - sum(I_init) - sum(E_init)
 S_second_init <- round(initial_s2 * pop)
 R_prim_init <- round(initial_r1 * pop)
-R_second_init <- matrix(round(rep((initial_r2 * pop)/n_stype, n_stype)), nrow=(n_stype), ncol=n_stype)
-sum(sum(I_init) + sum(E_init) + S_naive_init + sum(S_second_init) + 
-    sum(R_prim_init) + sum(R_second_init)) / pop
+R_second_init <- array(NA,c(n_stype,n_stype,nsims))
+for (i in 1:nsims){
+  R_second_init[,,i] <- matrix(rep(round((initial_r2[i,] * pop)/n_stype),n_stype), nrow=(n_stype), ncol=n_stype)
+}
+  #array((initial_r2 * pop)/n_stype,dim = c(nsims,n_stype,n_stype))
+  #matrix(round(rep((initial_r2 * pop)/n_stype, n_stype)), nrow=(n_stype), ncol=n_stype)
+(sum(I_init) + sum(E_init) + S_naive_init + rowSums(S_second_init) + 
+    sum(R_prim_init) + apply(R_second_init,3,sum)) / pop
 
 julia_assign('u0Sh_0', S_naive_init)
-julia_assign("u0Sh_1", S_second_init[1])
-julia_assign("u0Sh_2", S_second_init[2])
-julia_assign("u0Sh_3", S_second_init[3])
-julia_assign("u0Sh_4", S_second_init[4])
+julia_assign("u0Sh_1", S_second_init[,1])
+julia_assign("u0Sh_2", S_second_init[,2])
+julia_assign("u0Sh_3", S_second_init[,3])
+julia_assign("u0Sh_4", S_second_init[,4])
 julia_assign('u0Eh_1', E_init[1, 1])
 julia_assign('u0Eh_2', E_init[1, 2])
 julia_assign('u0Eh_3', E_init[1, 3])
@@ -149,27 +162,22 @@ julia_assign('u0Ih_34', I_init[4, 4])
 julia_assign('u0Ih_41', I_init[5, 1])
 julia_assign('u0Ih_42', I_init[5, 2])
 julia_assign('u0Ih_43', I_init[5, 3])
-
-julia_assign('u0Ih_1', I_init[1, 1])
-julia_assign('u0Ih_2', I_init[1, 2])
-julia_assign('u0Ih_12', I_init[2, 1])
-julia_assign('u0Ih_21', I_init[2, 2])
 julia_assign("u0Rh_1", R_prim_init[1])
 julia_assign("u0Rh_2", R_prim_init[2])
 julia_assign("u0Rh_3", R_prim_init[3])
 julia_assign("u0Rh_4", R_prim_init[4])
-julia_assign('u0Rh_12', R_second_init[1, 2])
-julia_assign('u0Rh_13', R_second_init[1, 3])
-julia_assign('u0Rh_14', R_second_init[1, 4])
-julia_assign('u0Rh_21', R_second_init[2, 1])
-julia_assign('u0Rh_23', R_second_init[2, 3])
-julia_assign('u0Rh_24', R_second_init[2, 4])
-julia_assign('u0Rh_31', R_second_init[3, 1])
-julia_assign('u0Rh_32', R_second_init[3, 2])
-julia_assign('u0Rh_34', R_second_init[3, 4])
-julia_assign('u0Rh_41', R_second_init[4, 1])
-julia_assign('u0Rh_42', R_second_init[4, 2])
-julia_assign('u0Rh_43', R_second_init[4, 3])
+julia_assign('u0Rh_12', R_second_init[1, 2, ])
+julia_assign('u0Rh_13', R_second_init[1, 3, ])
+julia_assign('u0Rh_14', R_second_init[1, 4, ])
+julia_assign('u0Rh_21', R_second_init[2, 1, ])
+julia_assign('u0Rh_23', R_second_init[2, 3, ])
+julia_assign('u0Rh_24', R_second_init[2, 4, ])
+julia_assign('u0Rh_31', R_second_init[3, 1, ])
+julia_assign('u0Rh_32', R_second_init[3, 2, ])
+julia_assign('u0Rh_34', R_second_init[3, 4, ])
+julia_assign('u0Rh_41', R_second_init[4, 1, ])
+julia_assign('u0Rh_42', R_second_init[4, 2, ])
+julia_assign('u0Rh_43', R_second_init[4, 3, ])
 
 
 # julia_command("u0Sh_0 = round(0.423*pop) ;")
@@ -202,15 +210,18 @@ julia_command("u0Im4 = 0;")
 julia_command("sumu0Nm = sum(u0Sm+u0Em1+u0Im1+u0Em2+u0Im2+u0Em3+u0Im3+u0Em4+u0Im4) ;") # mosquito pop
 
 ######
-# Vector of all compartments
-julia_command("u0all = ([u0Sh_0,u0Eh_1,u0Ih_1,u0Rh_1,u0Sh_1,u0Eh_12,u0Eh_13,u0Eh_14,u0Ih_12,u0Ih_13,u0Ih_14,u0Rh_12,u0Rh_13,u0Rh_14, 
-                                u0Eh_2,u0Ih_2,u0Rh_2,u0Sh_2,u0Eh_21,u0Eh_23,u0Eh_24,u0Ih_21,u0Ih_23,u0Ih_24,u0Rh_21,u0Rh_23,u0Rh_24, 
-                                u0Eh_3,u0Ih_3,u0Rh_3,u0Sh_3,u0Eh_31,u0Eh_32,u0Eh_34,u0Ih_31,u0Ih_32,u0Ih_34,u0Rh_31,u0Rh_32,u0Rh_34, 
-                                u0Eh_4,u0Ih_4,u0Rh_4,u0Sh_4,u0Eh_41,u0Eh_42,u0Eh_43,u0Ih_41,u0Ih_42,u0Ih_43,u0Rh_41,u0Rh_42,u0Rh_43, 
-                                u0Lm,u0Sm,u0Em1,u0Im1,u0Em2,u0Im2,u0Em3,u0Im3,u0Em4,u0Im4]);")
+# Vector of all compartments and sims
+julia_command("u0all = [];")
+julia_command("x0 = [];")
+julia_command("for j=1:nsims
+                push!(u0all,[u0Sh_0[j],u0Eh_1,u0Ih_1,u0Rh_1,u0Sh_1[j],u0Eh_12,u0Eh_13,u0Eh_14,u0Ih_12,u0Ih_13,u0Ih_14,u0Rh_12[j],u0Rh_13[j],u0Rh_14[j], 
+                                 u0Eh_2,u0Ih_2,u0Rh_2,u0Sh_2[j],u0Eh_21,u0Eh_23,u0Eh_24,u0Ih_21,u0Ih_23,u0Ih_24,u0Rh_21[j],u0Rh_23[j],u0Rh_24[j], 
+                                 u0Eh_3,u0Ih_3,u0Rh_3,u0Sh_3[j],u0Eh_31,u0Eh_32,u0Eh_34,u0Ih_31,u0Ih_32,u0Ih_34,u0Rh_31[j],u0Rh_32[j],u0Rh_34[j], 
+                                 u0Eh_4,u0Ih_4,u0Rh_4,u0Sh_4[j],u0Eh_41,u0Eh_42,u0Eh_43,u0Ih_41,u0Ih_42,u0Ih_43,u0Rh_41[j],u0Rh_42[j],u0Rh_43[j], 
+                                 u0Lm,u0Sm,u0Em1,u0Im1,u0Em2,u0Im2,u0Em3,u0Im3,u0Em4,u0Im4])
+                push!(x0,[u0all[j],0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+              end")
 
-# initial value for all later stored compartments (see below)
-julia_command("x0 = [u0all,0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];")
 # list of all initial items of interest AT TIME 0
 # 1. vector of individuals in each compartment
 # 2. new human infections
@@ -250,7 +261,7 @@ julia_command("x0 = [u0all,0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 # set seed for reproducibility
 julia_command("Random.seed!(123);")
-result <- julia_eval("run_4st_model_sims!(nsims, tmax, x0, par)")
+result <- julia_eval("run_4st_model_sims_randinit!(nsims, tmax, x0, par)")
 # saved result is a 'JuliaObject' list of 34 nsims*tmax matrices
 
 # CASES
@@ -370,26 +381,26 @@ df3 <- as.data.frame(newcases_st3_h)
 df4 <- as.data.frame(newcases_st4_h)
 # df1$median <- apply(df1, 1, median)
 # df2$median <- apply(df2, 1, median)
-df1 <- as.data.frame(I1dt + I21dt + I31dt + I41dt)
-df2 <- as.data.frame(I2dt + I12dt + I32dt + I42dt)
-df3 <- as.data.frame(I3dt + I13dt + I23dt + I43dt)
-df4 <- as.data.frame(I4dt + I14dt + I24dt + I34dt)
+# df1 <- as.data.frame(I1dt + I21dt + I31dt + I41dt)
+# df2 <- as.data.frame(I2dt + I12dt + I32dt + I42dt)
+# df3 <- as.data.frame(I3dt + I13dt + I23dt + I43dt)
+# df4 <- as.data.frame(I4dt + I14dt + I24dt + I34dt)
 # df1 <- as.data.frame(I1mdt)
 # df2 <- as.data.frame(I2mdt)
 plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df1, df2)), ylab = "New infections", xlab = "Days", bty = "n")
 for (i in 1:nsims) {
-  lines(1:tmax, df1[, i], col = alpha(colors[1], 0.15))
+  lines(1:tmax, df1[, i], col = alpha(colors[1], 0.5))
 }
 # lines(1:tmax, df1$median, col = colors[2])
 for (i in 1:nsims) {
-  lines(1:tmax, df2[, i], col = alpha(colors[2], 0.15))
+  lines(1:tmax, df2[, i], col = alpha(colors[2], 0.5))
 }
 # lines(1:tmax, df2$median, col = colors[3])
 for (i in 1:nsims) {
-  lines(1:tmax, df3[, i], col = alpha(colors[3], 0.15))
+  lines(1:tmax, df3[, i], col = alpha(colors[3], 0.5))
 }
 for (i in 1:nsims) {
-  lines(1:tmax, df4[, i], col = alpha(colors[4], 0.15))
+  lines(1:tmax, df4[, i], col = alpha(colors[4], 0.5))
 }
 
 
