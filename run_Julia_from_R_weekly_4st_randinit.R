@@ -102,26 +102,27 @@ julia_assign("pop", pop) # Initial total population of PR
 # for (i in 1:nsims)(
 #   
 # )
-init_sims <- rdirichlet(nsims, c(0.2,0.025, 0.15, 0.05, 0.175,0.175, 0.025, 0.05, 0.15))
+# init_sims <- rdirichlet(nsims, c(0.2,0.025, 0.15, 0.05, 0.175,0.175, 0.025, 0.05, 0.15))
 
 n_stype <- 4
-initial_s <- init_sims[,1]
-initial_s2 <- init_sims[,c(2:5)] #c(0.1, 0.1, 0.1, 0.1)#c(0.025, 0.15, 0.05, 0.175) #0.4
+initial_s <- 0.2#init_sims[,1]
+initial_s2 <- rep(0.3/4, 4) #c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(2:5)] #c(0.1, 0.1, 0.1, 0.1)#c(0.025, 0.15, 0.05, 0.175) #0.4
 initial_r1 <- c(0.0, 0.0, 0.0, 0.0)
-initial_r2 <- init_sims[,c(6:9)]#c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
-(initial_s + rowSums(initial_s2) + sum(initial_r1) + rowSums(initial_r2))
+initial_r2 <- rep(0.5/4, 4)#c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(6:9)]#c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
+(initial_s + sum(initial_s2) + sum(initial_r1) + sum(initial_r2))
+init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
+
+#(initial_s + rowSums(initial_s2) + sum(initial_r1) + rowSums(initial_r2))
 
 E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
 I_init <- matrix(5, nrow=(1+n_stype), ncol=n_stype)
-S_naive_init <- round(initial_s * pop) - sum(I_init) - sum(E_init)
-S_second_init <- round(initial_s2 * pop)
+S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
+S_second_init <- round(init_sims[,c(2:5)] * pop)
 R_prim_init <- round(initial_r1 * pop)
 R_second_init <- array(NA,c(n_stype,n_stype,nsims))
 for (i in 1:nsims){
-  R_second_init[,,i] <- matrix(rep(round((initial_r2[i,] * pop)/n_stype),n_stype), nrow=(n_stype), ncol=n_stype)
+  R_second_init[,,i] <- matrix(rep(round((init_sims[,c(6:9)][i,] * pop)/n_stype),n_stype), nrow=(n_stype), ncol=n_stype)
 }
-  #array((initial_r2 * pop)/n_stype,dim = c(nsims,n_stype,n_stype))
-  #matrix(round(rep((initial_r2 * pop)/n_stype, n_stype)), nrow=(n_stype), ncol=n_stype)
 (sum(I_init) + sum(E_init) + S_naive_init + rowSums(S_second_init) + 
     sum(R_prim_init) + apply(R_second_init,3,sum)) / pop
 
