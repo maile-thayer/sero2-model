@@ -37,12 +37,12 @@ julia_exists("run_4st_model_sims_randinit!")
 
 
 # set timeframe
-tmax <- julia_eval("tmax = 52*100;")
+tmax <- julia_eval("tmax = 52*200;")
 julia_command("tspan = collect(0.0:(tmax+52));")
 
 # set # simulations to run-- doing it in R
 # nsims=2
-nsims <- julia_eval("nsims = 5;")
+nsims <- julia_eval("nsims = 10;")
 
 
 detach(model_parameters)
@@ -106,17 +106,28 @@ julia_assign("pop", pop) # Initial total population of PR
 
 n_stype <- 4
 initial_s <- 0.2#init_sims[,1]
-initial_s2 <- rep(0.3/4, 4) #c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(2:5)] #c(0.1, 0.1, 0.1, 0.1)#c(0.025, 0.15, 0.05, 0.175) #0.4
+initial_s2 <- (diff(c(0, sort(sample(seq(0.001, 0.999, 0.001), 3)), 1)))*(0.2/4) #rep(0.2/4, 4) #c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(2:5)] #c(0.1, 0.1, 0.1, 0.1)#c(0.025, 0.15, 0.05, 0.175) #0.4
 initial_r1 <- c(0.0, 0.0, 0.0, 0.0)
-initial_r2 <- rep(0.5/4, 4)#c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(6:9)]#c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
+initial_r2 <- (diff(c(0, sort(sample(seq(0.001, 0.999, 0.001), 3)), 1)))*(0.6/4) #rep(0.6/4, 4)#c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(6:9)]#c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
 (initial_s + sum(initial_s2) + sum(initial_r1) + sum(initial_r2))
 init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
 
-#(initial_s + rowSums(initial_s2) + sum(initial_r1) + rowSums(initial_r2))
+
 
 E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
-I_init <- matrix(5, nrow=(1+n_stype), ncol=n_stype)
+I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
 S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
+
+# susceptible pop has to be > 0 --> keep re-drawing init_sims until this is true
+if (sum(S_naive_init > 0) < nsims) {
+  while (sum(S_naive_init > 0) < nsims) {
+    init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
+    E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
+    I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
+    S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
+  } 
+} 
+
 S_second_init <- round(init_sims[,c(2:5)] * pop)
 R_prim_init <- round(initial_r1 * pop)
 R_second_init <- array(NA,c(n_stype,n_stype,nsims))
@@ -388,20 +399,20 @@ df4 <- as.data.frame(newcases_st4_h)
 # df4 <- as.data.frame(I4dt + I14dt + I24dt + I34dt)
 # df1 <- as.data.frame(I1mdt)
 # df2 <- as.data.frame(I2mdt)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df1, df2)), ylab = "New infections", xlab = "Days", bty = "n")
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df1, df2,df3,df4)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
-  lines(1:tmax, df1[, i], col = alpha(colors[1], 0.5))
+  lines(1:tmax, df1[, i], col = alpha(colors[1], 0.3))
 }
 # lines(1:tmax, df1$median, col = colors[2])
 for (i in 1:nsims) {
-  lines(1:tmax, df2[, i], col = alpha(colors[2], 0.5))
+  lines(1:tmax, df2[, i], col = alpha(colors[2], 0.3))
 }
 # lines(1:tmax, df2$median, col = colors[3])
 for (i in 1:nsims) {
-  lines(1:tmax, df3[, i], col = alpha(colors[3], 0.5))
+  lines(1:tmax, df3[, i], col = alpha(colors[3], 0.3))
 }
 for (i in 1:nsims) {
-  lines(1:tmax, df4[, i], col = alpha(colors[4], 0.5))
+  lines(1:tmax, df4[, i], col = alpha(colors[4], 0.3))
 }
 
 
@@ -427,7 +438,7 @@ for (i in 1:nsims) {
 # serotype 1 (humans)
 df <- as.data.frame(lambda_h1)
 df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Days", bty = "n")
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
   lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
 }
@@ -436,7 +447,7 @@ lines(1:tmax, df$median, col = colors[4])
 # serotype 2 (humans)
 df <- as.data.frame(lambda_h2)
 df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Days", bty = "n")
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
   lines(1:tmax, df[, i], col = alpha(colors[5], 0.15))
 }
