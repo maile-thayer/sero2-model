@@ -9,7 +9,7 @@ library(ggplot2)
 library(scales)
 library(RColorBrewer)
 library(JuliaCall)
-
+library(LaplacesDemon)
 # install_julia() #DONT RUN UNLESS YOU DON'T HAVE JULIA INSTALLED
 julia <- julia_setup(JULIA_HOME = "C:/Users/ruu6/AppData/Local/Programs/Julia-1.7.2/bin")
 
@@ -111,8 +111,6 @@ initial_r1 <- c(0.0, 0.0, 0.0, 0.0)
 initial_r2 <- (diff(c(0, sort(sample(seq(0.001, 0.999, 0.001), 3)), 1)))*(0.6/4) #rep(0.6/4, 4)#c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(6:9)]#c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
 (initial_s + sum(initial_s2) + sum(initial_r1) + sum(initial_r2))
 init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
-
-
 
 E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
 I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
@@ -378,12 +376,12 @@ colors <- brewer.pal(8, name = "Dark2")
 
 ############### NEWCASES
 # all (humans)
-# df <- as.data.frame(newcases_all_h)
+df <- as.data.frame(newcases_all_h)
 # df$median <- apply(df, 1, median)
-# plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Days", bty = "n")
-# for (i in 1:nsims) {
-#   lines(1:tmax, df[, i], col = alpha(colors[1], 0.15))
-# }
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
+for (i in 1:nsims) {
+  lines(1:tmax, df[, i], col = alpha(colors[1], 0.3))
+}
 # lines(1:tmax, df$median, col = colors[1])
 
 # serotype 1 and 2 (humans)
