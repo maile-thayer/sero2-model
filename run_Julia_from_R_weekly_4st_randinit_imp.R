@@ -4,6 +4,8 @@
 ###############################################################
 ###############################################################
 
+# DOES NOT WORK ON R VERSION 4.4.0+
+
 # install.packages("JuliaCall")
 library(ggplot2)
 library(scales)
@@ -19,12 +21,12 @@ julia <- julia_setup(JULIA_HOME = "C:/Users/ruu6/AppData/Local/Programs/Julia-1.
 # julia_install_package_if_needed("Random")
 julia_library("Random, Distributions, DataFrames, LinearAlgebra, CSV, JLD2, Dates")
 
-julia_source("1_dengue_4st.jl") # load main model function
-julia_source("2_run_4st_model_sims_randinit.jl") # load function to run main model
+julia_source("1_dengue_4st_imp.jl") # load main model function
+julia_source("2_run_4st_model_sims_randinit_imp.jl") # load function to run main model
 
-julia_exists("dengue_4st!") # test whether functions loaded and exist :)
+julia_exists("dengue_4st_imp!") # test whether functions loaded and exist :)
 julia_exists("multinom_samp")
-julia_exists("run_4st_model_sims_randinit!")
+julia_exists("run_4st_model_sims_randinit_imp!")
 
 ##############################################################
 ###############################################################
@@ -37,12 +39,12 @@ julia_exists("run_4st_model_sims_randinit!")
 
 
 # set timeframe
-tmax <- julia_eval("tmax = 52*100;")
+tmax <- julia_eval("tmax = 52*200;")
 julia_command("tspan = collect(0.0:(tmax+52));")
 
 # set # simulations to run-- doing it in R
 # nsims=2
-nsims <- julia_eval("nsims = 5;")
+nsims <- julia_eval("nsims = 10;")
 
 
 detach(model_parameters)
@@ -59,6 +61,7 @@ model_parameters <- list(
   p_IIP = min(1, 1/5 * 7), # progression rate out of human E state; from paper
   p_IP = min(1, 1/6 * 7), # progression rate out of human I state; from paper
   p_R = 1/365 * 7, # progression rate out of human cross-protective state; currently at 1 year; from paper
+  # p_imp = rep((100/365 * 7)/16,16),
   
   #mosquito
   bm = 1/14 * 7, # mosquito egg laying rate ("birth rate"); from paper
@@ -115,6 +118,7 @@ init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
 E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
 I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
 S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
+Imp_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
 
 # susceptible pop has to be > 0 --> keep re-drawing init_sims until this is true
 if (sum(S_naive_init > 0) < nsims) {
@@ -189,6 +193,23 @@ julia_assign('u0Rh_41', R_second_init[4, 1, ])
 julia_assign('u0Rh_42', R_second_init[4, 2, ])
 julia_assign('u0Rh_43', R_second_init[4, 3, ])
 
+julia_assign('u0Ih_imp_1', Imp_init[1, 1])
+julia_assign('u0Ih_imp_2', Imp_init[1, 2])
+julia_assign('u0Ih_imp_3', Imp_init[1, 3])
+julia_assign('u0Ih_imp_4', Imp_init[1, 4])
+julia_assign('u0Ih_imp_12', Imp_init[2, 2])
+julia_assign('u0Ih_imp_13', Imp_init[2, 3])
+julia_assign('u0Ih_imp_14', Imp_init[2, 4])
+julia_assign('u0Ih_imp_21', Imp_init[3, 1])
+julia_assign('u0Ih_imp_23', Imp_init[3, 3])
+julia_assign('u0Ih_imp_24', Imp_init[3, 4])
+julia_assign('u0Ih_imp_31', Imp_init[4, 1])
+julia_assign('u0Ih_imp_32', Imp_init[4, 2])
+julia_assign('u0Ih_imp_34', Imp_init[4, 4])
+julia_assign('u0Ih_imp_41', Imp_init[5, 1])
+julia_assign('u0Ih_imp_42', Imp_init[5, 2])
+julia_assign('u0Ih_imp_43', Imp_init[5, 3])
+
 
 # julia_command("u0Sh_0 = round(0.423*pop) ;")
 # julia_command("u0Eh_1 = 0;")
@@ -228,6 +249,11 @@ julia_command("for j=1:nsims
                                  u0Eh_2,u0Ih_2,u0Rh_2,u0Sh_2[j],u0Eh_21,u0Eh_23,u0Eh_24,u0Ih_21,u0Ih_23,u0Ih_24,u0Rh_21[j],u0Rh_23[j],u0Rh_24[j], 
                                  u0Eh_3,u0Ih_3,u0Rh_3,u0Sh_3[j],u0Eh_31,u0Eh_32,u0Eh_34,u0Ih_31,u0Ih_32,u0Ih_34,u0Rh_31[j],u0Rh_32[j],u0Rh_34[j], 
                                  u0Eh_4,u0Ih_4,u0Rh_4,u0Sh_4[j],u0Eh_41,u0Eh_42,u0Eh_43,u0Ih_41,u0Ih_42,u0Ih_43,u0Rh_41[j],u0Rh_42[j],u0Rh_43[j], 
+                                 u0Ih_imp_1,u0Ih_imp_2,u0Ih_imp_3,u0Ih_imp_4,
+                                 u0Ih_imp_12,u0Ih_imp_13,u0Ih_imp_14,
+                                 u0Ih_imp_21,u0Ih_imp_23,u0Ih_imp_24,
+                                 u0Ih_imp_31,u0Ih_imp_32,u0Ih_imp_34,
+                                 u0Ih_imp_41,u0Ih_imp_42,u0Ih_imp_43, 
                                  u0Lm,u0Sm,u0Em1,u0Im1,u0Em2,u0Im2,u0Em3,u0Im3,u0Em4,u0Im4])
                 push!(x0,[u0all[j],0,0,pop,sumu0Nm,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
               end")
@@ -251,7 +277,7 @@ julia_command("for j=1:nsims
 # 16. all new FIRST infections
 # X 17. aging (by age) ---- not using in this model
 # X 18. deaths by age ---- not using in this model
-# X 19. importations ---- not using in this model
+# 19. importations ---- not using in this model
 # 20. new secondary human cases
 # 21. total larval population
 # 22. new human serotype 1 infections
@@ -271,7 +297,7 @@ julia_command("for j=1:nsims
 
 # set seed for reproducibility
 julia_command("Random.seed!(123);")
-result <- julia_eval("run_4st_model_sims_randinit!(nsims, tmax, x0, par)")
+result <- julia_eval("run_4st_model_sims_randinit_imp!(nsims, tmax, x0, par)")
 # saved result is a 'JuliaObject' list of 34 nsims*tmax matrices
 
 # CASES
@@ -364,6 +390,7 @@ I1mdt <- result[[79]] # Infectious compartment after being infected by st1
 I2mdt <- result[[80]] # Infectious compartment after being infected by st2
 I3mdt <- result[[81]] # Infectious compartment after being infected by st3
 I4mdt <- result[[82]] # Infectious compartment after being infected by st4
+Impdt <- result[[83]] # 
 am_pop <- Smdt + E1mdt + E2mdt + E3mdt + E4mdt + I1mdt + I2mdt + I3mdt + I4mdt
 
 ###############################################################
@@ -377,12 +404,12 @@ colors <- brewer.pal(8, name = "Dark2")
 ############### NEWCASES
 # all (humans)
 df <- as.data.frame(newcases_all_h)
-# df$median <- apply(df, 1, median)
+df$median <- apply(df, 1, median)
 plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
   lines(1:tmax, df[, i], col = alpha(colors[1], 0.3))
 }
-# lines(1:tmax, df$median, col = colors[1])
+lines(1:tmax, df$median, col = colors[1])
 
 # serotype 1 and 2 (humans)
 df1 <- as.data.frame(newcases_st1_h)
@@ -455,17 +482,16 @@ lines(1:tmax, df$median, col = colors[5])
 X <- hpop
 df <- as.data.frame(X)
 df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "count", xlab = "Weeks", bty = "n")
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
   lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
 }
 lines(1:tmax, df$median, col = colors[4])
 
-
 X <- mpop
 df <- as.data.frame(X)
 df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "count", xlab = "Weeks", bty = "n")
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
   lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
 }
@@ -492,5 +518,6 @@ data <- data_stackedareaplot(S0dt, S1dt, S2dt,
 ggplot(data, aes(x = time, y = value_perc, fill = group)) +
   geom_area() +
   theme_classic() +
-  ggtitle("4-serotype model") +
+  ggtitle("2-serotype model") +
   scale_fill_manual(values = c(R.col, S.col, E.col, I.col))
+
