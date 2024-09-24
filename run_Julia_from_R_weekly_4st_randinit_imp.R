@@ -39,7 +39,7 @@ julia_exists("run_4st_model_sims_randinit_imp!")
 
 
 # set timeframe
-tmax <- julia_eval("tmax = 52*200;")
+tmax <- julia_eval("tmax = 52*1000;")
 julia_command("tspan = collect(0.0:(tmax+52));")
 
 # set # simulations to run-- doing it in R
@@ -54,7 +54,7 @@ model_parameters <- list(
   bh = 1/(60*365) * 7, # birthrate; from paper
   m = 2, # initial ratio of mosquitoes to humans; from literature
   c = 0.5 * 7, # contact rate (biting rate); from paper
-  p_h = 0.15, # probability of a human being infected by an infected mosquito bite; paper 0.38
+  p_h = 0.1, # probability of a human being infected by an infected mosquito bite; paper 0.38
   #beta_h = rep(0.5 * 0.38, length(tmax)), # seasonal transmission- mosquito to human
   # beta_h = 0.5 * 0.38 * (0.3 * cos((2*pi*(1:(tmax+365)) + 5.295594)/365) + 1), #seasonal transmission- mosquito to human
   mu_h = 1/(60*365) * 7, # human death rate; set equal to birthrate
@@ -296,7 +296,7 @@ julia_command("for j=1:nsims
 # x = julia_eval("dengue_2st!(x0,par,2)") #saves output as list
 
 # set seed for reproducibility
-julia_command("Random.seed!(123);")
+julia_command("Random.seed!(12345);")
 result <- julia_eval("run_4st_model_sims_randinit_imp!(nsims, tmax, x0, par)")
 # saved result is a 'JuliaObject' list of 34 nsims*tmax matrices
 
@@ -409,7 +409,17 @@ plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", x
 for (i in 1:nsims) {
   lines(1:tmax, df[, i], col = alpha(colors[1], 0.3))
 }
-lines(1:tmax, df$median, col = colors[1])
+lines(1:tmax, df$median, col = "black")
+
+x = 1:tmax
+
+for (i in 1:nsims) {
+  y = df[, i]
+  lw1 <- loess(y ~ x)
+  # j <- order(df[, i])
+  lines(x,lw1$fitted,col="red")
+}
+
 
 # serotype 1 and 2 (humans)
 df1 <- as.data.frame(newcases_st1_h)
