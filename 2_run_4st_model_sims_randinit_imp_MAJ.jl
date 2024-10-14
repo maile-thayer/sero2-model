@@ -2,24 +2,23 @@ function run_4st_model_sims_randinit_imp!(nsims, tmax, u0, outcomes0, par)
         let
         
         global compartment_names = (
-            :dSh_0, 
-            :dEh_1, :dIh_1, :dRh_1, :dSh_1, 
-            :dEh_12, :dEh_13, :dEh_14, :dIh_12, :dIh_13, :dIh_14, 
-            :dRh_12, :dRh_13, :dRh_14, 
-            :dEh_2, :dIh_2, :dRh_2, :dSh_2, 
-            :dEh_21, :dEh_23, :dEh_24, :dIh_21, :dIh_23, :dIh_24, 
-            :dRh_21, :dRh_23, :dRh_24, 
-            :dEh_3, :dIh_3, :dRh_3, :dSh_3, 
-            :dEh_31, :dEh_32, :dEh_34, :dIh_31, :dIh_32, :dIh_34, 
-            :dRh_31, :dRh_32, :dRh_34, 
-            :dEh_4, :dIh_4, :dRh_4, :dSh_4, 
-            :dEh_41, :dEh_42, :dEh_43, :dIh_41, :dIh_42, :dIh_43, 
-            :dRh_41, :dRh_42, :dRh_43, 
-            # imported cases (TODO: don't need secondaries here)
-            :dIh_imp_1, :dIh_imp_2, :dIh_imp_3, :dIh_imp_4, 
+            :Sh_0, 
+            :Eh_1, :Ih_1, :Rh_1, :Sh_1, 
+            :Eh_12, :Eh_13, :Eh_14, :Ih_12, :Ih_13, :Ih_14, 
+            :Rh_12, :Rh_13, :Rh_14, 
+            :Eh_2, :Ih_2, :Rh_2, :Sh_2, 
+            :Eh_21, :Eh_23, :Eh_24, :Ih_21, :Ih_23, :Ih_24, 
+            :Rh_21, :Rh_23, :Rh_24, 
+            :Eh_3, :Ih_3, :Rh_3, :Sh_3, 
+            :Eh_31, :Eh_32, :Eh_34, :Ih_31, :Ih_32, :Ih_34, 
+            :Rh_31, :Rh_32, :Rh_34, 
+            :Eh_4, :Ih_4, :Rh_4, :Sh_4, 
+            :Eh_41, :Eh_42, :Eh_43, :Ih_41, :Ih_42, :Ih_43, 
+            :Rh_41, :Rh_42, :Rh_43, 
+            :Ih_imp_1, :Ih_imp_2, :Ih_imp_3, :Ih_imp_4, 
 
             # mosquitoes
-            :dLm, :dSm, :dEm1, :dIm1, :dEm2, :dIm2, :dEm3, :dIm3, :dEm4, :dIm4)
+            :Lm, :Sm, :Em1, :Im1, :Em2, :Im2, :Em3, :Im3, :Em4, :Im4)
         
         global outcome_names = (:newcases_all_h_sims, :newcases_all_m_sims, 
             :newcases_st1_h_sims, :newcases_st2_h_sims, :newcases_st3_h_sims, :newcases_st4_h_sims,

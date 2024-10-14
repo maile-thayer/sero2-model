@@ -34,7 +34,7 @@ function dengue_4st_imp!(u, par, t)
           Eh2+Ih2+Rh2+Sh2+Eh21+Eh23+Eh24+Ih21+Ih23+Ih24+Rh21+Rh23+Rh24+
           Eh3+Ih3+Rh3+Sh3+Eh31+Eh32+Eh34+Ih31+Ih32+Ih34+Rh31+Rh32+Rh34+
           Eh4+Ih4+Rh4+Sh4+Eh41+Eh42+Eh43+Ih41+Ih42+Ih43+Rh41+Rh42+Rh43
-    sumNm = u.dSm+u.dEm1+u.dIm1+u.dEm2+u.dIm2+u.dEm3+u.dIm3+u.dEm4+u.dIm4
+    sumNm = u.Sm+u.Em1+u.Im1+u.Em2+u.Im2+u.Em3+u.Im3+u.Em4+u.Im4
 
     # force of infection
     p_infect_h1 = 1 - exp(-beta_h[t] * (Im1)/sumNm)
@@ -243,79 +243,79 @@ function dengue_4st_imp!(u, par, t)
 
     ###### HUMAN STATE UPDATES ######
     du = (
-      dSh_0 = Sh0 - Sh0_trans[2] - new_Eh1 - new_Eh2 - new_Eh3 - new_Eh4 + births,
-      dEh_1 = Eh1 - Eh1_trans[2] - Eh1_trans[3] + new_Eh1,
-      dEh_2 = Eh2 - Eh2_trans[2] - Eh2_trans[3] + new_Eh2,
-      dEh_3 = Eh3 - Eh3_trans[2] - Eh3_trans[3] + new_Eh3,
-      dEh_4 = Eh4 - Eh4_trans[2] - Eh4_trans[3] + new_Eh4,
-      dIh_1 = Ih1 - Ih1_trans[2] - Ih1_trans[3] + Eh1_trans[3],
-      dIh_2 = Ih2 - Ih2_trans[2] - Ih2_trans[3] + Eh2_trans[3],
-      dIh_3 = Ih3 - Ih3_trans[2] - Ih3_trans[3] + Eh3_trans[3],
-      dIh_4 = Ih4 - Ih4_trans[2] - Ih4_trans[3] + Eh4_trans[3],
-      dRh_1 = Rh1 - Rh1_trans[2] - Rh1_trans[3] + Ih1_trans[3],
-      dRh_2 = Rh2 - Rh2_trans[2] - Rh2_trans[3] + Ih2_trans[3],
-      dRh_3 = Rh3 - Rh3_trans[2] - Rh3_trans[3] + Ih3_trans[3],
-      dRh_4 = Rh4 - Rh4_trans[2] - Rh4_trans[3] + Ih4_trans[3],
-      dSh_1 = Sh1 - Sh1_trans[2] - new_Eh12 - new_Eh13 - new_Eh14 + Rh1_trans[3],
-      dSh_2 = Sh2 - Sh2_trans[2] - new_Eh21 - new_Eh23 - new_Eh24 + Rh2_trans[3],
-      dSh_3 = Sh3 - Sh3_trans[2] - new_Eh31 - new_Eh32 - new_Eh34 + Rh3_trans[3],
-      dSh_4 = Sh4 - Sh4_trans[2] - new_Eh41 - new_Eh42 - new_Eh43 + Rh4_trans[3],
+      Sh_0 = Sh0 - Sh0_trans[2] - new_Eh1 - new_Eh2 - new_Eh3 - new_Eh4 + births,
+      Eh_1 = Eh1 - Eh1_trans[2] - Eh1_trans[3] + new_Eh1,
+      Eh_2 = Eh2 - Eh2_trans[2] - Eh2_trans[3] + new_Eh2,
+      Eh_3 = Eh3 - Eh3_trans[2] - Eh3_trans[3] + new_Eh3,
+      Eh_4 = Eh4 - Eh4_trans[2] - Eh4_trans[3] + new_Eh4,
+      Ih_1 = Ih1 - Ih1_trans[2] - Ih1_trans[3] + Eh1_trans[3],
+      Ih_2 = Ih2 - Ih2_trans[2] - Ih2_trans[3] + Eh2_trans[3],
+      Ih_3 = Ih3 - Ih3_trans[2] - Ih3_trans[3] + Eh3_trans[3],
+      Ih_4 = Ih4 - Ih4_trans[2] - Ih4_trans[3] + Eh4_trans[3],
+      Rh_1 = Rh1 - Rh1_trans[2] - Rh1_trans[3] + Ih1_trans[3],
+      Rh_2 = Rh2 - Rh2_trans[2] - Rh2_trans[3] + Ih2_trans[3],
+      Rh_3 = Rh3 - Rh3_trans[2] - Rh3_trans[3] + Ih3_trans[3],
+      Rh_4 = Rh4 - Rh4_trans[2] - Rh4_trans[3] + Ih4_trans[3],
+      Sh_1 = Sh1 - Sh1_trans[2] - new_Eh12 - new_Eh13 - new_Eh14 + Rh1_trans[3],
+      Sh_2 = Sh2 - Sh2_trans[2] - new_Eh21 - new_Eh23 - new_Eh24 + Rh2_trans[3],
+      Sh_3 = Sh3 - Sh3_trans[2] - new_Eh31 - new_Eh32 - new_Eh34 + Rh3_trans[3],
+      Sh_4 = Sh4 - Sh4_trans[2] - new_Eh41 - new_Eh42 - new_Eh43 + Rh4_trans[3],
       
-      dEh_12 = Eh12 - Eh12_trans[2] - Eh12_trans[3] + new_Eh12,
-      dEh_13 = Eh13 - Eh13_trans[2] - Eh13_trans[3] + new_Eh13,
-      dEh_14 = Eh14 - Eh14_trans[2] - Eh14_trans[3] + new_Eh14,
-      dEh_21 = Eh21 - Eh21_trans[2] - Eh21_trans[3] + new_Eh21,
-      dEh_23 = Eh23 - Eh23_trans[2] - Eh23_trans[3] + new_Eh23,
-      dEh_24 = Eh24 - Eh24_trans[2] - Eh24_trans[3] + new_Eh24,
-      dEh_31 = Eh31 - Eh31_trans[2] - Eh31_trans[3] + new_Eh31,
-      dEh_32 = Eh32 - Eh32_trans[2] - Eh32_trans[3] + new_Eh32,
-      dEh_34 = Eh34 - Eh34_trans[2] - Eh34_trans[3] + new_Eh34,
-      dEh_41 = Eh41 - Eh41_trans[2] - Eh41_trans[3] + new_Eh41,
-      dEh_42 = Eh42 - Eh42_trans[2] - Eh42_trans[3] + new_Eh42,
-      dEh_43 = Eh43 - Eh43_trans[2] - Eh43_trans[3] + new_Eh43,
+      Eh_12 = Eh12 - Eh12_trans[2] - Eh12_trans[3] + new_Eh12,
+      Eh_13 = Eh13 - Eh13_trans[2] - Eh13_trans[3] + new_Eh13,
+      Eh_14 = Eh14 - Eh14_trans[2] - Eh14_trans[3] + new_Eh14,
+      Eh_21 = Eh21 - Eh21_trans[2] - Eh21_trans[3] + new_Eh21,
+      Eh_23 = Eh23 - Eh23_trans[2] - Eh23_trans[3] + new_Eh23,
+      Eh_24 = Eh24 - Eh24_trans[2] - Eh24_trans[3] + new_Eh24,
+      Eh_31 = Eh31 - Eh31_trans[2] - Eh31_trans[3] + new_Eh31,
+      Eh_32 = Eh32 - Eh32_trans[2] - Eh32_trans[3] + new_Eh32,
+      Eh_34 = Eh34 - Eh34_trans[2] - Eh34_trans[3] + new_Eh34,
+      Eh_41 = Eh41 - Eh41_trans[2] - Eh41_trans[3] + new_Eh41,
+      Eh_42 = Eh42 - Eh42_trans[2] - Eh42_trans[3] + new_Eh42,
+      Eh_43 = Eh43 - Eh43_trans[2] - Eh43_trans[3] + new_Eh43,
       
-      dIh_12 = Ih12 - Ih12_trans[2] - Ih12_trans[3] + Eh12_trans[3],
-      dIh_13 = Ih13 - Ih13_trans[2] - Ih13_trans[3] + Eh13_trans[3],
-      dIh_14 = Ih14 - Ih14_trans[2] - Ih14_trans[3] + Eh14_trans[3],
-      dIh_21 = Ih21 - Ih21_trans[2] - Ih21_trans[3] + Eh21_trans[3],
-      dIh_23 = Ih23 - Ih23_trans[2] - Ih23_trans[3] + Eh23_trans[3],
-      dIh_24 = Ih24 - Ih24_trans[2] - Ih24_trans[3] + Eh24_trans[3],
-      dIh_31 = Ih31 - Ih31_trans[2] - Ih31_trans[3] + Eh31_trans[3],
-      dIh_32 = Ih32 - Ih32_trans[2] - Ih32_trans[3] + Eh32_trans[3],
-      dIh_34 = Ih34 - Ih34_trans[2] - Ih34_trans[3] + Eh34_trans[3],
-      dIh_41 = Ih41 - Ih41_trans[2] - Ih41_trans[3] + Eh41_trans[3],
-      dIh_42 = Ih42 - Ih42_trans[2] - Ih42_trans[3] + Eh42_trans[3],
-      dIh_43 = Ih43 - Ih43_trans[2] - Ih43_trans[3] + Eh43_trans[3],
+      Ih_12 = Ih12 - Ih12_trans[2] - Ih12_trans[3] + Eh12_trans[3],
+      Ih_13 = Ih13 - Ih13_trans[2] - Ih13_trans[3] + Eh13_trans[3],
+      Ih_14 = Ih14 - Ih14_trans[2] - Ih14_trans[3] + Eh14_trans[3],
+      Ih_21 = Ih21 - Ih21_trans[2] - Ih21_trans[3] + Eh21_trans[3],
+      Ih_23 = Ih23 - Ih23_trans[2] - Ih23_trans[3] + Eh23_trans[3],
+      Ih_24 = Ih24 - Ih24_trans[2] - Ih24_trans[3] + Eh24_trans[3],
+      Ih_31 = Ih31 - Ih31_trans[2] - Ih31_trans[3] + Eh31_trans[3],
+      Ih_32 = Ih32 - Ih32_trans[2] - Ih32_trans[3] + Eh32_trans[3],
+      Ih_34 = Ih34 - Ih34_trans[2] - Ih34_trans[3] + Eh34_trans[3],
+      Ih_41 = Ih41 - Ih41_trans[2] - Ih41_trans[3] + Eh41_trans[3],
+      Ih_42 = Ih42 - Ih42_trans[2] - Ih42_trans[3] + Eh42_trans[3],
+      Ih_43 = Ih43 - Ih43_trans[2] - Ih43_trans[3] + Eh43_trans[3],
       
-      dRh_12 = Rh12 - Rh12_trans[2] + Ih12_trans[3],
-      dRh_13 = Rh13 - Rh13_trans[2] + Ih13_trans[3],
-      dRh_14 = Rh14 - Rh14_trans[2] + Ih14_trans[3],
-      dRh_21 = Rh21 - Rh21_trans[2] + Ih21_trans[3],
-      dRh_23 = Rh23 - Rh23_trans[2] + Ih23_trans[3],
-      dRh_24 = Rh24 - Rh24_trans[2] + Ih24_trans[3],
-      dRh_31 = Rh31 - Rh31_trans[2] + Ih31_trans[3],
-      dRh_32 = Rh32 - Rh32_trans[2] + Ih32_trans[3],
-      dRh_34 = Rh34 - Rh34_trans[2] + Ih34_trans[3],
-      dRh_41 = Rh41 - Rh41_trans[2] + Ih41_trans[3],
-      dRh_42 = Rh42 - Rh42_trans[2] + Ih42_trans[3],
-      dRh_43 = Rh43 - Rh43_trans[2] + Ih43_trans[3],
+      Rh_12 = Rh12 - Rh12_trans[2] + Ih12_trans[3],
+      Rh_13 = Rh13 - Rh13_trans[2] + Ih13_trans[3],
+      Rh_14 = Rh14 - Rh14_trans[2] + Ih14_trans[3],
+      Rh_21 = Rh21 - Rh21_trans[2] + Ih21_trans[3],
+      Rh_23 = Rh23 - Rh23_trans[2] + Ih23_trans[3],
+      Rh_24 = Rh24 - Rh24_trans[2] + Ih24_trans[3],
+      Rh_31 = Rh31 - Rh31_trans[2] + Ih31_trans[3],
+      Rh_32 = Rh32 - Rh32_trans[2] + Ih32_trans[3],
+      Rh_34 = Rh34 - Rh34_trans[2] + Ih34_trans[3],
+      Rh_41 = Rh41 - Rh41_trans[2] + Ih41_trans[3],
+      Rh_42 = Rh42 - Rh42_trans[2] + Ih42_trans[3],
+      Rh_43 = Rh43 - Rh43_trans[2] + Ih43_trans[3],
     
-      dIh_imp_1 = Ih1_imp - Ih1_imp_trans[2] - Ih1_imp_trans[3] + new_imp1,
-      dIh_imp_2 = Ih2_imp - Ih2_imp_trans[2] - Ih2_imp_trans[3] + new_imp2, 
-      dIh_imp_3 = Ih3_imp - Ih3_imp_trans[2] - Ih3_imp_trans[3] + new_imp3,
-      dIh_imp_4 = Ih4_imp - Ih4_imp_trans[2] - Ih4_imp_trans[3] + new_imp4,
+      Ih_imp_1 = Ih1_imp - Ih1_imp_trans[2] - Ih1_imp_trans[3] + new_imp1,
+      Ih_imp_2 = Ih2_imp - Ih2_imp_trans[2] - Ih2_imp_trans[3] + new_imp2, 
+      Ih_imp_3 = Ih3_imp - Ih3_imp_trans[2] - Ih3_imp_trans[3] + new_imp3,
+      Ih_imp_4 = Ih4_imp - Ih4_imp_trans[2] - Ih4_imp_trans[3] + new_imp4,
 
       ###### MOSQUITO STATE UPDATES ######
-      dLm = Lm_trans[1] + eggs,
-      dSm = Sm_trans[1] + Lm_trans[3],
-      dEm1 = Em1_trans[1] + new_Em1,
-      dEm2 = Em2_trans[1] + new_Em2,
-      dEm3 = Em3_trans[1] + new_Em3,
-      dEm4 = Em4_trans[1] + new_Em4,
-      dIm1 = Im1_trans[1] + Em2_trans[3],
-      dIm2 = Im2_trans[1] + Em2_trans[3],
-      dIm3 = Im3_trans[1] + Em3_trans[3],
-      dIm4 = Im4_trans[1] + Em4_trans[3],
+      Lm = Lm_trans[1] + eggs,
+      Sm = Sm_trans[1] + Lm_trans[3],
+      Em1 = Em1_trans[1] + new_Em1,
+      Em2 = Em2_trans[1] + new_Em2,
+      Em3 = Em3_trans[1] + new_Em3,
+      Em4 = Em4_trans[1] + new_Em4,
+      Im1 = Im1_trans[1] + Em2_trans[3],
+      Im2 = Im2_trans[1] + Em2_trans[3],
+      Im3 = Im3_trans[1] + Em3_trans[3],
+      Im4 = Im4_trans[1] + Em4_trans[3],
       )
 
     ###### OUTPUT OBJECTS ######
@@ -335,24 +335,24 @@ function dengue_4st_imp!(u, par, t)
                     new_Eh31 + new_Eh32 + new_Eh34 + 
                     new_Eh41 + new_Eh42 + new_Eh43
     newcases_m = new_Em1 + new_Em2 + new_Em3 + new_Em4
-    h_pop = du.dSh_0+du.dEh_1+du.dIh_1+du.dRh_1+du.dSh_1+
-            du.dEh_12+du.dEh_13+du.dEh_14+du.dIh_12+du.dIh_13+du.dIh_14+
-            du.dRh_12+du.dRh_13+du.dRh_14+
-            du.dEh_2+du.dIh_2+du.dRh_2+du.dSh_2+
-            du.dEh_21+du.dEh_23+du.dEh_24+du.dIh_21+du.dIh_23+du.dIh_24+
-            du.dRh_21+du.dRh_23+du.dRh_24+
-            du.dEh_3+du.dIh_3+du.dRh_3+du.dSh_3+
-            du.dEh_31+du.dEh_32+du.dEh_34+du.dIh_31+du.dIh_32+du.dIh_34+
-            du.dRh_31+du.dRh_32+du.dRh_34+
-            du.dEh_4+du.dIh_4+du.dRh_4+du.dSh_4+
-            du.dEh_41+du.dEh_42+du.dEh_43+du.dIh_41+du.dIh_42+du.dIh_43+
-            du.dRh_41+du.dRh_42+du.dRh_43
-    m_pop = dSm+dEm1+dIm1+dEm2+dIm2+dEm3+dIm3+dEm4+dIm4
-    l_pop = du.dLm
+    h_pop = du.Sh_0+du.Eh_1+du.Ih_1+du.Rh_1+du.Sh_1+
+            du.Eh_12+du.Eh_13+du.Eh_14+du.Ih_12+du.Ih_13+du.Ih_14+
+            du.Rh_12+du.Rh_13+du.Rh_14+
+            du.Eh_2+du.Ih_2+du.Rh_2+du.Sh_2+
+            du.Eh_21+du.Eh_23+du.Eh_24+du.Ih_21+du.Ih_23+du.Ih_24+
+            du.Rh_21+du.Rh_23+du.Rh_24+
+            du.Eh_3+du.Ih_3+du.Rh_3+du.Sh_3+
+            du.Eh_31+du.Eh_32+du.Eh_34+du.Ih_31+du.Ih_32+du.Ih_34+
+            du.Rh_31+du.Rh_32+du.Rh_34+
+            du.Eh_4+du.Ih_4+du.Rh_4+du.Sh_4+
+            du.Eh_41+du.Eh_42+du.Eh_43+du.Ih_41+du.Ih_42+du.Ih_43+
+            du.Rh_41+du.Rh_42+du.Rh_43
+    m_pop = du.Sm+du.Em1+du.Im1+du.Em2+du.Im2+du.Em3+du.Im3+du.Em4+du.Im4
+    l_pop = du.Lm
 
     tot_births = births
     tot_deaths = deaths
-    tot_imp = du.dIh_imp_1 + du.dIh_imp_2 + du.dIh_imp_3 + du.dIh_imp_4
+    tot_imp = du.Ih_imp_1 + du.Ih_imp_2 + du.Ih_imp_3 + du.Ih_imp_4
           
     outcomes = (; newcases_all_h, newcases_m, h_pop, m_pop, tot_births, tot_deaths,
         p_infect_h1, p_infect_h2, p_infect_h3, p_infect_h4, 
