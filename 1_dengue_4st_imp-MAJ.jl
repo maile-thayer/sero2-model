@@ -202,23 +202,6 @@ function dengue_4st_imp!(u, par, t)
     new_imp3 = importations[3]
     new_imp4 = importations[4]
     
-#=    new_imp12 = importations[5]
-    new_imp13 = importations[6]
-    new_imp14 = importations[7]
-    
-    new_imp21 = importations[8]
-    new_imp23 = importations[9]
-    new_imp24 = importations[10]
-    
-    new_imp31 = importations[11]
-    new_imp32 = importations[12]
-    new_imp34 = importations[13]
-    
-    new_imp41 = importations[14]
-    new_imp42 = importations[15]
-    new_imp43 = importations[16]
-    =#
-    
     births = deaths
     
     ############# MOSQUITOES ###############
@@ -329,13 +312,13 @@ function dengue_4st_imp!(u, par, t)
     newcases_st3_h = new_Eh3 + new_Eh13 + new_Eh23 + new_Eh43
     newcases_st4_h = new_Eh4 + new_Eh14 + new_Eh24 + new_Eh34
     
-    newcases_1_h = new_Eh1 + new_Eh2 + new_Eh3 + new_Eh4
-    new2cases = new_Eh12 + new_Eh13 + new_Eh14 + 
+    newcases_primary_h = new_Eh1 + new_Eh2 + new_Eh3 + new_Eh4
+    newcases_secondary_h = new_Eh12 + new_Eh13 + new_Eh14 + 
                     new_Eh21 + new_Eh23 + new_Eh24 + 
                     new_Eh31 + new_Eh32 + new_Eh34 + 
                     new_Eh41 + new_Eh42 + new_Eh43
-    newcases_m = new_Em1 + new_Em2 + new_Em3 + new_Em4
-    h_pop = du.Sh_0+du.Eh_1+du.Ih_1+du.Rh_1+du.Sh_1+
+    newcases_all_m = new_Em1 + new_Em2 + new_Em3 + new_Em4
+    hpop = du.Sh_0+du.Eh_1+du.Ih_1+du.Rh_1+du.Sh_1+
             du.Eh_12+du.Eh_13+du.Eh_14+du.Ih_12+du.Ih_13+du.Ih_14+
             du.Rh_12+du.Rh_13+du.Rh_14+
             du.Eh_2+du.Ih_2+du.Rh_2+du.Sh_2+
@@ -347,18 +330,17 @@ function dengue_4st_imp!(u, par, t)
             du.Eh_4+du.Ih_4+du.Rh_4+du.Sh_4+
             du.Eh_41+du.Eh_42+du.Eh_43+du.Ih_41+du.Ih_42+du.Ih_43+
             du.Rh_41+du.Rh_42+du.Rh_43
-    m_pop = du.Sm+du.Em1+du.Im1+du.Em2+du.Im2+du.Em3+du.Im3+du.Em4+du.Im4
-    l_pop = du.Lm
+    mpop = du.Sm+du.Em1+du.Im1+du.Em2+du.Im2+du.Em3+du.Im3+du.Em4+du.Im4
+    lpop = du.Lm
 
-    tot_births = births
-    tot_deaths = deaths
     tot_imp = du.Ih_imp_1 + du.Ih_imp_2 + du.Ih_imp_3 + du.Ih_imp_4
-          
-    outcomes = (; newcases_all_h, newcases_m, h_pop, m_pop, tot_births, tot_deaths,
+
+    outcomes = (; hpop, mpop, lpop, hbirths = births, hdeaths = deaths,
+        newcases_all_h, newcases_all_m, 
+        newcases_st1_h, newcases_st2_h, newcases_st3_h, newcases_st4_h,
         p_infect_h1, p_infect_h2, p_infect_h3, p_infect_h4, 
         p_infect_m1, p_infect_m2, p_infect_m3, p_infect_m4,
-        newcases_1_h, unk1=0, unk2=0, tot_imp, new2cases, l_pop,
-        newcases_st1_h, newcases_st2_h, newcases_st3_h, newcases_st4_h)
+        newcases_primary_h, newcases_secondary_h, tot_imp)
     
     return [du, outcomes]
 end;

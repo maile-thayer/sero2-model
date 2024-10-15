@@ -20,11 +20,12 @@ function run_4st_model_sims_randinit_imp!(nsims, tmax, u0, outcomes0, par)
             # mosquitoes
             :Lm, :Sm, :Em1, :Im1, :Em2, :Im2, :Em3, :Im3, :Em4, :Im4)
         
-        global outcome_names = (:newcases_all_h_sims, :newcases_all_m_sims, 
-            :newcases_st1_h_sims, :newcases_st2_h_sims, :newcases_st3_h_sims, :newcases_st4_h_sims,
-            :hpop_sims, :mpop_sims, :lpop_sims, :hbirths_sims, :hdeaths_sims,
-            :lambda_h1_sims, :lambda_h2_sims, :lambda_h3_sims, :lambda_h4_sims,
-            :lambda_m1_sims, :lambda_m2_sims, :lambda_m3_sims, :lambda_m4_sims)
+        global outcome_names = (:hpop, :mpop, :lpop, :hbirths, :hdeaths,
+            :newcases_all_h, :newcases_all_m, 
+            :newcases_st1_h, :newcases_st2_h, :newcases_st3_h, :newcases_st4_h,
+            :p_infect_h1, :p_infect_h2, :p_infect_h3, :p_infect_h4, 
+            :p_infect_m1, :p_infect_m2, :p_infect_m3, :p_infect_m4,
+            :newcases_primary_h, :newcases_secondary_h, :tot_imp)
 
         global compartments = []
         for i=1:length(compartment_names)

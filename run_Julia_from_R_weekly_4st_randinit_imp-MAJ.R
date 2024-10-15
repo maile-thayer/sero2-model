@@ -142,64 +142,64 @@ for (i in 1:nsims){
 (sum(I_init) + sum(E_init) + S_naive_init + rowSums(S_second_init) + 
     sum(R_prim_init) + apply(R_second_init,3,sum)) / pop
 
-julia_assign('dSh_0', S_naive_init)
-julia_assign("dSh_1", S_second_init[,1])
-julia_assign("dSh_2", S_second_init[,2])
-julia_assign("dSh_3", S_second_init[,3])
-julia_assign("dSh_4", S_second_init[,4])
-julia_assign('dEh_1', E_init[1, 1])
-julia_assign('dEh_2', E_init[1, 2])
-julia_assign('dEh_3', E_init[1, 3])
-julia_assign('dEh_4', E_init[1, 4])
-julia_assign('dEh_12', E_init[2, 2])
-julia_assign('dEh_13', E_init[2, 3])
-julia_assign('dEh_14', E_init[2, 4])
-julia_assign('dEh_21', E_init[3, 1])
-julia_assign('dEh_23', E_init[3, 3])
-julia_assign('dEh_24', E_init[3, 4])
-julia_assign('dEh_31', E_init[4, 1])
-julia_assign('dEh_32', E_init[4, 2])
-julia_assign('dEh_34', E_init[4, 4])
-julia_assign('dEh_41', E_init[5, 1])
-julia_assign('dEh_42', E_init[5, 2])
-julia_assign('dEh_43', E_init[5, 3])
-julia_assign('dIh_1', I_init[1, 1])
-julia_assign('dIh_2', I_init[1, 2])
-julia_assign('dIh_3', I_init[1, 3])
-julia_assign('dIh_4', I_init[1, 4])
-julia_assign('dIh_12', I_init[2, 2])
-julia_assign('dIh_13', I_init[2, 3])
-julia_assign('dIh_14', I_init[2, 4])
-julia_assign('dIh_21', I_init[3, 1])
-julia_assign('dIh_23', I_init[3, 3])
-julia_assign('dIh_24', I_init[3, 4])
-julia_assign('dIh_31', I_init[4, 1])
-julia_assign('dIh_32', I_init[4, 2])
-julia_assign('dIh_34', I_init[4, 4])
-julia_assign('dIh_41', I_init[5, 1])
-julia_assign('dIh_42', I_init[5, 2])
-julia_assign('dIh_43', I_init[5, 3])
-julia_assign("dRh_1", R_prim_init[1])
-julia_assign("dRh_2", R_prim_init[2])
-julia_assign("dRh_3", R_prim_init[3])
-julia_assign("dRh_4", R_prim_init[4])
-julia_assign('dRh_12', R_second_init[1, 2, ])
-julia_assign('dRh_13', R_second_init[1, 3, ])
-julia_assign('dRh_14', R_second_init[1, 4, ])
-julia_assign('dRh_21', R_second_init[2, 1, ])
-julia_assign('dRh_23', R_second_init[2, 3, ])
-julia_assign('dRh_24', R_second_init[2, 4, ])
-julia_assign('dRh_31', R_second_init[3, 1, ])
-julia_assign('dRh_32', R_second_init[3, 2, ])
-julia_assign('dRh_34', R_second_init[3, 4, ])
-julia_assign('dRh_41', R_second_init[4, 1, ])
-julia_assign('dRh_42', R_second_init[4, 2, ])
-julia_assign('dRh_43', R_second_init[4, 3, ])
+julia_assign('Sh_0', S_naive_init)
+julia_assign("Sh_1", S_second_init[,1])
+julia_assign("Sh_2", S_second_init[,2])
+julia_assign("Sh_3", S_second_init[,3])
+julia_assign("Sh_4", S_second_init[,4])
+julia_assign('Eh_1', E_init[1, 1])
+julia_assign('Eh_2', E_init[1, 2])
+julia_assign('Eh_3', E_init[1, 3])
+julia_assign('Eh_4', E_init[1, 4])
+julia_assign('Eh_12', E_init[2, 2])
+julia_assign('Eh_13', E_init[2, 3])
+julia_assign('Eh_14', E_init[2, 4])
+julia_assign('Eh_21', E_init[3, 1])
+julia_assign('Eh_23', E_init[3, 3])
+julia_assign('Eh_24', E_init[3, 4])
+julia_assign('Eh_31', E_init[4, 1])
+julia_assign('Eh_32', E_init[4, 2])
+julia_assign('Eh_34', E_init[4, 4])
+julia_assign('Eh_41', E_init[5, 1])
+julia_assign('Eh_42', E_init[5, 2])
+julia_assign('Eh_43', E_init[5, 3])
+julia_assign('Ih_1', I_init[1, 1])
+julia_assign('Ih_2', I_init[1, 2])
+julia_assign('Ih_3', I_init[1, 3])
+julia_assign('Ih_4', I_init[1, 4])
+julia_assign('Ih_12', I_init[2, 2])
+julia_assign('Ih_13', I_init[2, 3])
+julia_assign('Ih_14', I_init[2, 4])
+julia_assign('Ih_21', I_init[3, 1])
+julia_assign('Ih_23', I_init[3, 3])
+julia_assign('Ih_24', I_init[3, 4])
+julia_assign('Ih_31', I_init[4, 1])
+julia_assign('Ih_32', I_init[4, 2])
+julia_assign('Ih_34', I_init[4, 4])
+julia_assign('Ih_41', I_init[5, 1])
+julia_assign('Ih_42', I_init[5, 2])
+julia_assign('Ih_43', I_init[5, 3])
+julia_assign("Rh_1", R_prim_init[1])
+julia_assign("Rh_2", R_prim_init[2])
+julia_assign("Rh_3", R_prim_init[3])
+julia_assign("Rh_4", R_prim_init[4])
+julia_assign('Rh_12', R_second_init[1, 2, ])
+julia_assign('Rh_13', R_second_init[1, 3, ])
+julia_assign('Rh_14', R_second_init[1, 4, ])
+julia_assign('Rh_21', R_second_init[2, 1, ])
+julia_assign('Rh_23', R_second_init[2, 3, ])
+julia_assign('Rh_24', R_second_init[2, 4, ])
+julia_assign('Rh_31', R_second_init[3, 1, ])
+julia_assign('Rh_32', R_second_init[3, 2, ])
+julia_assign('Rh_34', R_second_init[3, 4, ])
+julia_assign('Rh_41', R_second_init[4, 1, ])
+julia_assign('Rh_42', R_second_init[4, 2, ])
+julia_assign('Rh_43', R_second_init[4, 3, ])
 
-julia_assign('dIh_imp_1', Imp_init[1, 1])
-julia_assign('dIh_imp_2', Imp_init[1, 2])
-julia_assign('dIh_imp_3', Imp_init[1, 3])
-julia_assign('dIh_imp_4', Imp_init[1, 4])
+julia_assign('Ih_imp_1', Imp_init[1, 1])
+julia_assign('Ih_imp_2', Imp_init[1, 2])
+julia_assign('Ih_imp_3', Imp_init[1, 3])
+julia_assign('Ih_imp_4', Imp_init[1, 4])
 # julia_assign('dIh_imp_12', Imp_init[2, 2])
 # julia_assign('dIh_imp_13', Imp_init[2, 3])
 # julia_assign('dIh_imp_14', Imp_init[2, 4])
@@ -230,37 +230,39 @@ julia_assign('dIh_imp_4', Imp_init[1, 4])
 # julia_command("dIh_21 = 25;")
 # julia_command("dRh_21 = round(0.061*pop);")
 
-julia_command("dLm = 0;")
+julia_command("Lm = 0;")
 # start with all mosquitoes (human pop * 2) in first S compartment
-julia_assign("dSm", pop*julia_eval('m'))
-julia_command("dEm1 = 0;")
-julia_command("dIm1 = 0;")
-julia_command("dEm2 = 0;")
-julia_command("dIm2 = 0;")
-julia_command("dEm3 = 0;")
-julia_command("dIm3 = 0;")
-julia_command("dEm4 = 0;")
-julia_command("dIm4 = 0;")
-julia_command("sumdNm = sum(dSm+dEm1+dIm1+dEm2+dIm2+dEm3+dIm3+dEm4+dIm4) ;") # mosquito pop
+julia_assign("Sm", pop*julia_eval('m'))
+julia_command("Em1 = 0;")
+julia_command("Im1 = 0;")
+julia_command("Em2 = 0;")
+julia_command("Im2 = 0;")
+julia_command("Em3 = 0;")
+julia_command("Im3 = 0;")
+julia_command("Em4 = 0;")
+julia_command("Im4 = 0;")
+julia_command("sumdNm = sum(Sm+Em1+Im1+Em2+Im2+Em3+Im3+Em4+Im4) ;") # mosquito pop
 
 ######
 # Vector of all compartments and sims
 julia_command("u0all = [];")
 julia_command("outcomes0 = [];")
 julia_command("for j=1:nsims
-                push!(u0all, (;dSh_0=dSh_0[j],dEh_1,dIh_1,dRh_1,
-                dSh_1=dSh_1[j],dEh_12,dEh_13,dEh_14,dIh_12,dIh_13,dIh_14,dRh_12=dRh_12[j],dRh_13=dRh_13[j],dRh_14=dRh_14[j], 
-                                 dEh_2,dIh_2,dRh_2,dSh_2=dSh_2[j],dEh_21,dEh_23,dEh_24,dIh_21,dIh_23,dIh_24,dRh_21=dRh_21[j],dRh_23=dRh_23[j],dRh_24=dRh_24[j], 
-                                 dEh_3,dIh_3,dRh_3,dSh_3=dSh_3[j],dEh_31,dEh_32,dEh_34,dIh_31,dIh_32,dIh_34,dRh_31=dRh_31[j],dRh_32=dRh_32[j],dRh_34=dRh_34[j], 
-                                 dEh_4,dIh_4,dRh_4,dSh_4=dSh_4[j],dEh_41,dEh_42,dEh_43,dIh_41,dIh_42,dIh_43,dRh_41=dRh_41[j],dRh_42=dRh_42[j],dRh_43=dRh_43[j], 
-                                 dIh_imp_1,dIh_imp_2,dIh_imp_3,dIh_imp_4,
-                                 # dIh_imp_12,dIh_imp_13,dIh_imp_14,
-                                 # dIh_imp_21,dIh_imp_23,dIh_imp_24,
-                                 # dIh_imp_31,dIh_imp_32,dIh_imp_34,
-                                 # dIh_imp_41,dIh_imp_42,dIh_imp_43, 
-                                 dLm,dSm,dEm1,dIm1,dEm2,dIm2,dEm3,dIm3,dEm4,dIm4))
-                push!(outcomes0, [0,0,pop,sumdNm,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+                push!(u0all, (;Sh_0=Sh_0[j],Eh_1,Ih_1,Rh_1,
+                Sh_1=dSh_1[j],Eh_12,Eh_13,Eh_14,Ih_12,Ih_13,Ih_14,Rh_12=Rh_12[j],Rh_13=Rh_13[j],Rh_14=Rh_14[j], 
+                                 Eh_2,Ih_2,Rh_2,Sh_2=Sh_2[j],Eh_21,Eh_23,Eh_24,Ih_21,Ih_23,Ih_24,Rh_21=Rh_21[j],Rh_23=Rh_23[j],Rh_24=Rh_24[j], 
+                                 Eh_3,Ih_3,Rh_3,Sh_3=Sh_3[j],Eh_31,Eh_32,Eh_34,Ih_31,Ih_32,Ih_34,Rh_31=Rh_31[j],Rh_32=Rh_32[j],Rh_34=Rh_34[j], 
+                                 Eh_4,Ih_4,Rh_4,Sh_4=Sh_4[j],Eh_41,Eh_42,Eh_43,Ih_41,Ih_42,Ih_43,Rh_41=Rh_41[j],Rh_42=Rh_42[j],Rh_43=Rh_43[j], 
+                                 Ih_imp_1,Ih_imp_2,Ih_imp_3,Ih_imp_4,
+                                 Lm,Sm,Em1,Im1,Em2,Im2,Em3,Im3,Em4,Im4))
+                push!(outcomes0, (; hpop = pop, mpop = sumdNm, lpop = 0, 
+                    hbirths = 0, hdeaths= 0, newcases_all_h = 0, newcases_all_m = 0, 
+                    newcases_st1_h = 0, newcases_st2_h = 0, newcases_st3_h = 0, newcases_st4_h = 0,
+                    p_infect_h1 = 0, p_infect_h2 = 0, p_infect_h3 = 0, p_infect_h4 = 0, 
+                    p_infect_m1 = 0, p_infect_m2 = 0, p_infect_m3 = 0, p_infect_m4 = 0,
+                    newcases_primary_h = 0, newcases_secondary_h = 0, tot_imp = 0))
               end")
+            
 
 # list of all initial items of interest AT TIME 0
 # 1. vector of individuals in each compartment
