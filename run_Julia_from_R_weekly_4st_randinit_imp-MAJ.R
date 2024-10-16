@@ -47,12 +47,11 @@ julia_exists("run_4st_model_sims_randinit_imp!")
 
 # set timeframe
 tmax <- julia_eval("tmax = 52*10;")
-julia_command("tspan = collect(0.0:(tmax+52));")
+tspan <- julia_eval("tspan = collect(0.0:(tmax+52));")
 
 # set # simulations to run-- doing it in R
 # nsims=2
-nsims <- julia_eval("nsims = 3;")
-
+nsims <- julia_eval("nsims = 10;")
 
 detach(model_parameters)
 ######## HUMAN PARAMETERS ########
@@ -67,7 +66,7 @@ model_parameters <- list(
   mu_h = 1/(60*365) * 7, # human death rate; set equal to birthrate
   p_IIP = 1/5 * 7, # progression rate out of human E state; from paper
   p_IP = 1/6 * 7, # progression rate out of human I state; from paper
-  p_R = 1 * 1/365 * 7, # progression rate out of human cross-protective state; currently at 1 year; from paper
+  p_R = 1/365 * 7, # progression rate out of human cross-protective state; currently at 1 year; from paper
   # p_imp = rep((100/365 * 7)/16,16),
   
   #mosquito
@@ -85,6 +84,9 @@ for (i in 1:length(model_parameters)) {
 }
 #beta_h <- julia_eval("beta_h = c * p_h * ones(tmax);") # ((0.3 *(cos.(((2*pi*tspan).+ 5.295594)/365))).+ 1);") #seasonal transmission- mosquito to human
 beta_h <- julia_eval("beta_h = c * p_h * ((0.3 *(cos.(((2*pi*tspan).+ 5.295594)/52))).+ 1);") #seasonal transmission- mosquito to human
+# stronger seasonality:
+#beta_h <- julia_eval("beta_h = max.(0.0, c * p_h * ((0.99 * (cos.(((2*pi*tspan).+ 5.295594)/52))).+ 1));") #seasonal transmission- mosquito to human
+#plot(beta_h)
 beta_m <- julia_eval("beta_m = c * p_m;") # human-to-mosquito transmission rate
 
 attach(model_parameters)
@@ -125,7 +127,7 @@ initial_r1 <- rep(0.2/4, 4)
 initial_r2 <- rep(0.1/12, 12)
 #init_h <- round(pop * t(rdirichlet(nsims, c(initial_s, initial_s2, initial_r1, initial_r2))))
 # rdirichlet too variable, Sh_0 should always be high
-init_h <- rmultinom(3, size=pop, prob=c(initial_s, initial_s2, initial_r1, initial_r2))
+init_h <- rmultinom(nsims, size=pop, prob=c(initial_s, initial_s2, initial_r1, initial_r2))
 rownames(init_h) <- c('Sh_0', 'Sh_1', 'Sh_2', 'Sh_3', 'Sh_4', 
   "Rh_1", "Rh_2", "Rh_3", "Rh_4", "Rh_12", 'Rh_13', 'Rh_14', 'Rh_21', 'Rh_23', 'Rh_24', 
   'Rh_31', 'Rh_32', 'Rh_34', 'Rh_41', 'Rh_42', 'Rh_43')
