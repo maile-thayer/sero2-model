@@ -20,10 +20,10 @@ function dengue_4st_imp!(u, par, t)
     sumNm = u.Sm + u.Em1 + u.Im1 + u.Em2 + u.Im2 + u.Em3 + u.Im3 + u.Em4 + u.Im4
 
     # force of infection
-    p_infect_h1 = 1 - exp(-par.beta_h[t] * (Im1)/sumNm)
-    p_infect_h2 = 1 - exp(-par.beta_h[t] * (Im2)/sumNm)
-    p_infect_h3 = 1 - exp(-par.beta_h[t] * (Im3)/sumNm)
-    p_infect_h4 = 1 - exp(-par.beta_h[t] * (Im4)/sumNm)
+    p_infect_h1 = 1 - exp(-par.beta_h[t] * (u.Im1)/sumNm)
+    p_infect_h2 = 1 - exp(-par.beta_h[t] * (u.Im2)/sumNm)
+    p_infect_h3 = 1 - exp(-par.beta_h[t] * (u.Im3)/sumNm)
+    p_infect_h4 = 1 - exp(-par.beta_h[t] * (u.Im4)/sumNm)
     p_infect_m1 = 1 - exp(-par.beta_m * (u.Ih_1 + u.Ih_21 + u.Ih_31 + u.Ih_41 + u.Ih_imp_1)/sumNh)
     p_infect_m2 = 1 - exp(-par.beta_m * (u.Ih_2 + u.Ih_12 + u.Ih_32 + u.Ih_42 + u.Ih_imp_2)/sumNh)
     p_infect_m3 = 1 - exp(-par.beta_m * (u.Ih_3 + u.Ih_13 + u.Ih_23 + u.Ih_43 + u.Ih_imp_3)/sumNh)
