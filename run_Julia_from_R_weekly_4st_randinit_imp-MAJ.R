@@ -23,8 +23,12 @@ julia <- julia_setup(JULIA_HOME = '/Users/michael/.julia/juliaup/julia-1.10.5+0.
 # julia_install_package_if_needed("Random")
 julia_library("Random, Distributions, DataFrames, LinearAlgebra, CSV, JLD2, Dates")
 
-julia_source("1_dengue_4st_imp.jl") # load main model function
-julia_source("2_run_4st_model_sims_randinit_imp.jl") # load function to run main model
+#julia_source("1_dengue_4st_imp.jl") # load main model function
+#julia_source("2_run_4st_model_sims_randinit_imp.jl") # load function to run main model
+
+julia_source("1_dengue_4st_imp-MAJ.jl")
+#x <- julia_eval("dengue_4st_imp!(u0all[1], par, 2)")
+julia_source("2_run_4st_model_sims_randinit_imp_MAJ.jl")
 
 julia_exists("dengue_4st_imp!") # test whether functions loaded and exist :)
 julia_exists("multinom_samp")
@@ -91,7 +95,7 @@ m*c*p_m*1/p_IP*exp(-mu_m/p_EIP) * c*p_h*1/mu_m
 c * p_m * 100 #lambdam
 c * p_m * 100 * m*3255603 * 1/p_IP
 
-julia_command("par = (bh,beta_h,bm,phi_m,beta_m,mu_m,mu_mL,mu_h,p_IIP,p_IP,p_EIP,p_R,m);") # save all params into one vector to input into model function
+julia_command("par = (; bh,beta_h,bm,phi_m,beta_m,mu_m,mu_mL,mu_h,p_IIP,p_IP,p_EIP,p_R,m)") # save all params into one vector to input into model function
 
 ######################################################
 ########### COMPARTMENTS
@@ -248,7 +252,7 @@ julia_command("sumdNm = sum(Sm+Em1+Im1+Em2+Im2+Em3+Im3+Em4+Im4) ;") # mosquito p
 julia_command("u0all = [];")
 julia_command("outcomes0 = [];")
 julia_command("for j=1:nsims
-                push!(u0all, (;Sh_0=Sh_0[j],Eh_1,Ih_1,Rh_1,
+                push!(u0, (;Sh_0=Sh_0[j],Eh_1,Ih_1,Rh_1,
                 Sh_1=dSh_1[j],Eh_12,Eh_13,Eh_14,Ih_12,Ih_13,Ih_14,Rh_12=Rh_12[j],Rh_13=Rh_13[j],Rh_14=Rh_14[j], 
                                  Eh_2,Ih_2,Rh_2,Sh_2=Sh_2[j],Eh_21,Eh_23,Eh_24,Ih_21,Ih_23,Ih_24,Rh_21=Rh_21[j],Rh_23=Rh_23[j],Rh_24=Rh_24[j], 
                                  Eh_3,Ih_3,Rh_3,Sh_3=Sh_3[j],Eh_31,Eh_32,Eh_34,Ih_31,Ih_32,Ih_34,Rh_31=Rh_31[j],Rh_32=Rh_32[j],Rh_34=Rh_34[j], 
@@ -308,106 +312,8 @@ julia_command("for j=1:nsims
 # julia_source("/Users/michael/Library/CloudStorage/OneDrive-Personal/Documents/Projects/learn julia/test_named_output.jl")
 # result <- julia_eval("test_named_output!(nsims, tmax, x0, par)")
 
-julia_source("1_dengue_4st_imp-MAJ.jl")
-x <- julia_eval("dengue_4st_imp!(u0all[1], par, 2)")
-
-julia_source("2_run_4st_model_sims_randinit_imp_MAJ.jl")
-result <- julia_eval("run_4st_model_sims_randinit_imp!(nsims, tmax, u0all, outcomes0, par)")
-head(result$newcases_all_h_sims)
-# saved result is a 'JuliaObject' list of 34 nsims*tmax matrices
-
-# CASES
-newcases_all_h <- result[[1]] # all new human infections/cases from time 1:tmax
-newcases_all_m <- result[[2]] # all new mosquito infections/cases from time 1:tmax
-newcases_st1_h <- result[[3]] # new serotype-1 human infections/cases from time 1:tmax
-newcases_st2_h <- result[[4]] # new serotype-2 human infections/cases from time 1:tmax
-newcases_st3_h <- result[[5]] # new serotype-3 human infections/cases from time 1:tmax
-newcases_st4_h <- result[[6]] # new serotype-4 human infections/cases from time 1:tmax
-# POPULATIONS, BIRTHS, DEATHS
-hpop <- result[[7]] # human population from time 1:tmax
-mpop <- result[[8]] # adult mosquito population from time 1:tmax
-lpop <- result[[9]] # larval mosquito population from time 1:tmax
-hbirths <- result[[10]] # human births from time 1:tmax
-hdeaths <- result[[11]] # human deaths from time 1:tmax
-
-# SEROTYPE-SPECIFIC FORCES OF INFECTION
-lambda_h1 <- result[[12]] # mosquito-to-human serotype-1 FOI
-lambda_h2 <- result[[13]] # mosquito-to-human serotype-2 FOI
-lambda_h2 <- result[[14]] # mosquito-to-human serotype-3 FOI
-lambda_h2 <- result[[15]] # mosquito-to-human serotype-4 FOI
-lambda_m1 <- result[[16]] # human-to-mosquito serotype-1 FOI
-lambda_m2 <- result[[17]] # human-to-mosquito serotype-2 FOI
-lambda_m3 <- result[[18]] # human-to-mosquito serotype-3 FOI
-lambda_m4 <- result[[19]] # human-to-mosquito serotype-4 FOI
-
-# HUMAN COMPARTMENTS
-S0dt <- result[[20]] # Susceptible to any serotype (0 prior infections)
-E1dt <- result[[21]] # Incubation compartment (IIP) after being infected by st1 for first time (only st1; no others)
-E2dt <- result[[22]] # Incubation compartment (IIP) after being infected by st2 for first time (only st2; no others)
-E3dt <- result[[23]] # Incubation compartment (IIP) after being infected by st3 for first time (only st3; no others)
-E4dt <- result[[24]] # Incubation compartment (IIP) after being infected by st4 for first time (only st4; no others)
-I1dt <- result[[25]] # Infectious compartment (IP) for st1 (only st1; no others)
-I2dt <- result[[26]] # Infectious compartment (IP) for st2 (only st2; no others)
-I3dt <- result[[27]] # Infectious compartment (IP) for st3 (only st3; no others)
-I4dt <- result[[28]] # Infectious compartment (IP) for st4 (only st4; no others)
-R1dt <- result[[29]] # Recovered and temporarily immune (cross-protection) compartment for st1
-R2dt <- result[[30]] # Recovered and temporarily immune (cross-protection) compartment for st2
-R3dt <- result[[31]] # Recovered and temporarily immune (cross-protection) compartment for st3
-R4dt <- result[[32]] # Recovered and temporarily immune (cross-protection) compartment for st4
-S1dt <- result[[33]] # Susceptible to st2,3,4 (but has been previously infected with st1)
-S2dt <- result[[34]] # Susceptible to st1,3,4 (but has been previously infected with st2)
-S3dt <- result[[35]] # Susceptible to st1,2,4 (but has been previously infected with st3)
-S4dt <- result[[36]] # Susceptible to st1,2,3 (but has been previously infected with st4)
-E12dt <- result[[37]] # Incubation compartment (IIP) after being infected by st2 (previously infected by st1)
-E13dt <- result[[38]] # Incubation compartment (IIP) after being infected by st3 (previously infected by st1)
-E14dt <- result[[39]] # Incubation compartment (IIP) after being infected by st4 (previously infected by st1)
-I12dt <- result[[40]] # Infectious compartment (IP) for st2 (previously infected by st1)
-I13dt <- result[[41]] # Infectious compartment (IP) for st3 (previously infected by st1)
-I14dt <- result[[42]] # Infectious compartment (IP) for st4 (previously infected by st1)
-R12dt <- result[[43]] # Recovered and immune from infection with serotypes 1,2
-R13dt <- result[[44]] # Recovered and immune from infection with serotypes 1,3
-R14dt <- result[[45]] # Recovered and immune from infection with serotypes 1,4
-E21dt <- result[[46]] # Incubation compartment (IIP) after being infected by st1 (previously infected by st2)
-E23dt <- result[[47]] # Incubation compartment (IIP) after being infected by st3 (previously infected by st2)
-E24dt <- result[[48]] # Incubation compartment (IIP) after being infected by st4 (previously infected by st2)
-I21dt <- result[[49]] # Infectious compartment (IP) for st1 (previously infected by st2)
-I23dt <- result[[50]] # Infectious compartment (IP) for st3 (previously infected by st2)
-I24dt <- result[[51]] # Infectious compartment (IP) for st4 (previously infected by st2)
-R21dt <- result[[52]] # Recovered and immune from infection with serotypes 2,1
-R23dt <- result[[53]] # Recovered and immune from infection with serotypes 2,3
-R24dt <- result[[54]] # Recovered and immune from infection with serotypes 2,4
-E31dt <- result[[55]] # Incubation compartment (IIP) after being infected by st1 (previously infected by st3)
-E32dt <- result[[56]] # Incubation compartment (IIP) after being infected by st2 (previously infected by st3)
-E34dt <- result[[57]] # Incubation compartment (IIP) after being infected by st4 (previously infected by st3)
-I31dt <- result[[58]] # Infectious compartment (IP) for st1 (previously infected by st3)
-I32dt <- result[[59]] # Infectious compartment (IP) for st2 (previously infected by st3)
-I34dt <- result[[60]] # Infectious compartment (IP) for st4 (previously infected by st3)
-R31dt <- result[[61]] # Recovered and immune from infection with serotypes 3,1
-R32dt <- result[[62]] # Recovered and immune from infection with serotypes 3,2
-R34dt <- result[[63]] # Recovered and immune from infection with serotypes 3,4
-E41dt <- result[[64]] # Incubation compartment (IIP) after being infected by st1 (previously infected by st4)
-E42dt <- result[[65]] # Incubation compartment (IIP) after being infected by st2 (previously infected by st4)
-E43dt <- result[[66]] # Incubation compartment (IIP) after being infected by st3 (previously infected by st4)
-I41dt <- result[[67]] # Infectious compartment (IP) for st1 (previously infected by st4)
-I42dt <- result[[68]] # Infectious compartment (IP) for st1 (previously infected by st4)
-I43dt <- result[[69]] # Infectious compartment (IP) for st1 (previously infected by st4)
-R41dt <- result[[70]] # Recovered and immune from infection with serotypes 4,1
-R42dt <- result[[71]] # Recovered and immune from infection with serotypes 4,2
-R43dt <- result[[72]] # Recovered and immune from infection with serotypes 4,3
-
-# MOSQUITO COMPARTMENTS -- can only be infected once
-Lmdt <- result[[73]] # Development (Larval) compartment (no infections)
-Smdt <- result[[74]] # Susceptible to any serotype
-E1mdt <- result[[75]] # Incubation compartment (EIP) after being infected by st1
-E2mdt <- result[[76]] # Incubation compartment (EIP) after being infected by st2
-E3mdt <- result[[77]] # Incubation compartment (EIP) after being infected by st3
-E4mdt <- result[[78]] # Incubation compartment (EIP) after being infected by st4
-I1mdt <- result[[79]] # Infectious compartment after being infected by st1
-I2mdt <- result[[80]] # Infectious compartment after being infected by st2
-I3mdt <- result[[81]] # Infectious compartment after being infected by st3
-I4mdt <- result[[82]] # Infectious compartment after being infected by st4
-Impdt <- result[[83]] # 
-am_pop <- Smdt + E1mdt + E2mdt + E3mdt + E4mdt + I1mdt + I2mdt + I3mdt + I4mdt
+result <- julia_eval("run_4st_model_sims_randinit_imp!(nsims, tmax, u0, outcomes0, par)")
+head(result$newcases_all_h)
 
 ###############################################################
 ###############################################################
@@ -416,10 +322,9 @@ am_pop <- Smdt + E1mdt + E2mdt + E3mdt + E4mdt + I1mdt + I2mdt + I3mdt + I4mdt
 ###############################################################
 colors <- brewer.pal(8, name = "Dark2")
 
-
 ############### NEWCASES
 # all (humans)
-df <- as.data.frame(newcases_all_h)
+df <- as.data.frame(result$newcases_all_h)
 df$median <- apply(df, 1, median)
 plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
@@ -438,10 +343,10 @@ for (i in 1:nsims) {
 
 
 # serotype 1 and 2 (humans)
-df1 <- as.data.frame(newcases_st1_h)
-df2 <- as.data.frame(newcases_st2_h)
-df3 <- as.data.frame(newcases_st3_h)
-df4 <- as.data.frame(newcases_st4_h)
+df1 <- as.data.frame(result$newcases_st1_h)
+df2 <- as.data.frame(result$newcases_st2_h)
+df3 <- as.data.frame(result$newcases_st3_h)
+df4 <- as.data.frame(result$newcases_st4_h)
 # df1$median <- apply(df1, 1, median)
 # df2$median <- apply(df2, 1, median)
 # df1 <- as.data.frame(I1dt + I21dt + I31dt + I41dt)
@@ -487,16 +392,17 @@ for (i in 1:nsims) {
 
 ############### FOI
 # serotype 1 (humans)
-df <- as.data.frame(lambda_h1)
+df <- as.data.frame(result$p_infect_h1)
 df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), 
+  ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
   lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
 }
 lines(1:tmax, df$median, col = colors[4])
 
 # serotype 2 (humans)
-df <- as.data.frame(lambda_h2)
+df <- as.data.frame(result$p_infect_h2)
 df$median <- apply(df, 1, median)
 plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
@@ -505,8 +411,7 @@ for (i in 1:nsims) {
 lines(1:tmax, df$median, col = colors[5])
 
 
-X <- hpop
-df <- as.data.frame(X)
+df <- as.data.frame(result$hpop)
 df$median <- apply(df, 1, median)
 plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
@@ -514,8 +419,8 @@ for (i in 1:nsims) {
 }
 lines(1:tmax, df$median, col = colors[4])
 
-X <- mpop
-df <- as.data.frame(X)
+
+df <- as.data.frame(result$mpop)
 df$median <- apply(df, 1, median)
 plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
@@ -533,10 +438,10 @@ R.col <- brewer.pal(9, "BuGn")[6:9]
 
 source("data_stackedareaplot.R")
 
-data <- data_stackedareaplot(S0dt, S1dt, S2dt,
-  E1dt, E2dt, E12dt, E21dt,
-  I1dt, I2dt, I12dt, I21dt,
-  R1dt, R2dt, R12dt, R21dt,
+data <- data_stackedareaplot(result$Sh_0, result$Sh_1, result$Sh_2,
+  result$Eh_1, result$Eh_2, result$Eh_12, result$Eh_21,
+  result$Ih_1, result$Ih_2, result$Ih_12, result$Ih_21,
+  result$Rh_1, result$Rh_2, result$Rh_12, result$Rh_21,
   nsims = nsims, tmax = tmax
 )
 
@@ -544,6 +449,6 @@ data <- data_stackedareaplot(S0dt, S1dt, S2dt,
 ggplot(data, aes(x = time, y = value_perc, fill = group)) +
   geom_area() +
   theme_classic() +
-  ggtitle("2-serotype model") +
+  ggtitle("4-serotype model") +
   scale_fill_manual(values = c(R.col, S.col, E.col, I.col))
 

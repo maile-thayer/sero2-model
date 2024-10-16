@@ -2,6 +2,7 @@ function run_4st_model_sims_randinit_imp!(nsims, tmax, u0, outcomes0, par)
         let
         
         global compartment_names = (
+            # humans
             :Sh_0, 
             :Eh_1, :Ih_1, :Rh_1, :Sh_1, 
             :Eh_12, :Eh_13, :Eh_14, :Ih_12, :Ih_13, :Ih_14, 
@@ -15,7 +16,7 @@ function run_4st_model_sims_randinit_imp!(nsims, tmax, u0, outcomes0, par)
             :Eh_4, :Ih_4, :Rh_4, :Sh_4, 
             :Eh_41, :Eh_42, :Eh_43, :Ih_41, :Ih_42, :Ih_43, 
             :Rh_41, :Rh_42, :Rh_43, 
-            :Ih_imp_1, :Ih_imp_2, :Ih_imp_3, :Ih_imp_4, 
+            :Ih_imp_1, :Ih_imp_2, :Ih_imp_3, :Ih_imp_4,
 
             # mosquitoes
             :Lm, :Sm, :Em1, :Im1, :Em2, :Im2, :Em3, :Im3, :Em4, :Im4)
@@ -38,8 +39,6 @@ function run_4st_model_sims_randinit_imp!(nsims, tmax, u0, outcomes0, par)
             push!(outcomes, Array{Float64}(undef, tmax, nsims))
         end
         outcomes = NamedTuple{outcome_names}(outcomes)
-        
-        #global output = Array{Float64}(undef, 83, tmax, nsims)
 
         for j=1:nsims
             global x = dengue_4st_imp!(u0[j], par, 2)
@@ -52,7 +51,7 @@ function run_4st_model_sims_randinit_imp!(nsims, tmax, u0, outcomes0, par)
                 outcomes[outcome_names[k]][2, j] = x[2][outcome_names[k]]
             end
             for t in 3:tmax
-                x = dengue_4st_imp!(x[compartment_names], par, t);
+                x = dengue_4st_imp!(x[1], par, t);
                 for k=1:length(compartment_names)
                     compartments[compartment_names[k]][t, j] = x[1][compartment_names[k]]
                 end
@@ -62,7 +61,9 @@ function run_4st_model_sims_randinit_imp!(nsims, tmax, u0, outcomes0, par)
             end
         end
         
-        output = tuplejoin(compartments, outcomes)
-        return[output]
+        all_names = (compartment_names..., outcome_names...)
+        all_outputs = (compartments..., outcomes...)
+        output = NamedTuple{all_names}(all_outputs)
+        return(output)
         end
 end
