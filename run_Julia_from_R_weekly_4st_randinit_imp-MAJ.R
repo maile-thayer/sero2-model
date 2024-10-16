@@ -103,41 +103,6 @@ julia_command("par = (; bh, beta_h, bm, phi_m, beta_m, mu_m, mu_mL, mu_h, p_IIP,
 ########### COMPARTMENTS
 pop <- 3255603
 julia_assign("pop", pop) # Initial total population of PR
-# initialize compartments
-# susceptible and recovered estimated based on Sarah's catalytic model
-# all E compartments empty to start
-# start with 25 in each infectious human compartment
-
-# init_comp_rand = Array{Float64}(undef, 9, nsims)
-# 
-# for (i in 1:nsims)(
-#   
-# )
-# init_sims <- rdirichlet(nsims, c(0.2,0.025, 0.15, 0.05, 0.175,0.175, 0.025, 0.05, 0.15))
-
-# n_stype <- 4
-# initial_s <- 0.2#init_sims[,1]
-# initial_s2 <- (diff(c(0, sort(sample(seq(0.001, 0.999, 0.001), 3)), 1)))*(0.2) #rep(0.2/4, 4) #c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(2:5)] #c(0.1, 0.1, 0.1, 0.1)#c(0.025, 0.15, 0.05, 0.175) #0.4
-# initial_r1 <- c(0.0, 0.0, 0.0, 0.0)
-# initial_r2 <- (diff(c(0, sort(sample(seq(0.001, 0.999, 0.001), 3)), 1)))*(0.6) #rep(0.6/4, 4)#c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(6:9)]#c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
-# (initial_s + sum(initial_s2) + sum(initial_r1) + sum(initial_r2))
-# init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
-# 
-# E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
-# I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
-# S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
-# #Imp_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
-# Imp_init <- matrix(0, nrow=1, ncol=n_stype)
-# 
-# # susceptible pop has to be > 0 --> keep re-drawing init_sims until this is true
-# if (sum(S_naive_init > 0) < nsims) {
-#   while (sum(S_naive_init > 0) < nsims) {
-#     init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
-# #    E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
-# #    I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
-#     S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
-#   } 
-# } 
 
 compartment_names <- c('Sh_0', 'Eh_1', 'Ih_1', 'Rh_1', 'Sh_1', 
   'Eh_12', 'Eh_13', 'Eh_14', 'Ih_12', 'Ih_13', 'Ih_14', 
@@ -185,116 +150,6 @@ for (i in 1:nsims) {
   julia_command(paste0('push!(u0, NamedTuple{compartment_names}(init_compartments[:, ', i, ']))'))
 }
 
-# S_second_init <- round(init_sims[,c(2:5)] * pop)
-# R_prim_init <- round(initial_r1 * pop)
-# R_second_init <- array(NA,c(n_stype,n_stype,nsims))
-# for (i in 1:nsims){
-#   R_second_init[,,i] <- matrix(rep(round((init_sims[,c(6:9)][i,] * pop)/n_stype),n_stype), nrow=(n_stype), ncol=n_stype)
-# }
-# (sum(I_init) + sum(E_init) + S_naive_init + rowSums(S_second_init) + 
-#     sum(R_prim_init) + apply(R_second_init,3,sum)) / pop
-# 
-# julia_assign('Sh_0', S_naive_init)
-# julia_assign("Sh_1", S_second_init[,1])
-# julia_assign("Sh_2", S_second_init[,2])
-# julia_assign("Sh_3", S_second_init[,3])
-# julia_assign("Sh_4", S_second_init[,4])
-# julia_assign('Eh_1', E_init[1, 1])
-# julia_assign('Eh_2', E_init[1, 2])
-# julia_assign('Eh_3', E_init[1, 3])
-# julia_assign('Eh_4', E_init[1, 4])
-# julia_assign('Eh_12', E_init[2, 2])
-# julia_assign('Eh_13', E_init[2, 3])
-# julia_assign('Eh_14', E_init[2, 4])
-# julia_assign('Eh_21', E_init[3, 1])
-# julia_assign('Eh_23', E_init[3, 3])
-# julia_assign('Eh_24', E_init[3, 4])
-# julia_assign('Eh_31', E_init[4, 1])
-# julia_assign('Eh_32', E_init[4, 2])
-# julia_assign('Eh_34', E_init[4, 4])
-# julia_assign('Eh_41', E_init[5, 1])
-# julia_assign('Eh_42', E_init[5, 2])
-# julia_assign('Eh_43', E_init[5, 3])
-# julia_assign('Ih_1', I_init[1, 1])
-# julia_assign('Ih_2', I_init[1, 2])
-# julia_assign('Ih_3', I_init[1, 3])
-# julia_assign('Ih_4', I_init[1, 4])
-# julia_assign('Ih_12', I_init[2, 2])
-# julia_assign('Ih_13', I_init[2, 3])
-# julia_assign('Ih_14', I_init[2, 4])
-# julia_assign('Ih_21', I_init[3, 1])
-# julia_assign('Ih_23', I_init[3, 3])
-# julia_assign('Ih_24', I_init[3, 4])
-# julia_assign('Ih_31', I_init[4, 1])
-# julia_assign('Ih_32', I_init[4, 2])
-# julia_assign('Ih_34', I_init[4, 4])
-# julia_assign('Ih_41', I_init[5, 1])
-# julia_assign('Ih_42', I_init[5, 2])
-# julia_assign('Ih_43', I_init[5, 3])
-# julia_assign("Rh_1", R_prim_init[1])
-# julia_assign("Rh_2", R_prim_init[2])
-# julia_assign("Rh_3", R_prim_init[3])
-# julia_assign("Rh_4", R_prim_init[4])
-# julia_assign('Rh_12', R_second_init[1, 2, ])
-# julia_assign('Rh_13', R_second_init[1, 3, ])
-# julia_assign('Rh_14', R_second_init[1, 4, ])
-# julia_assign('Rh_21', R_second_init[2, 1, ])
-# julia_assign('Rh_23', R_second_init[2, 3, ])
-# julia_assign('Rh_24', R_second_init[2, 4, ])
-# julia_assign('Rh_31', R_second_init[3, 1, ])
-# julia_assign('Rh_32', R_second_init[3, 2, ])
-# julia_assign('Rh_34', R_second_init[3, 4, ])
-# julia_assign('Rh_41', R_second_init[4, 1, ])
-# julia_assign('Rh_42', R_second_init[4, 2, ])
-# julia_assign('Rh_43', R_second_init[4, 3, ])
-# 
-# julia_assign('Ih_imp_1', Imp_init[1, 1])
-# julia_assign('Ih_imp_2', Imp_init[1, 2])
-# julia_assign('Ih_imp_3', Imp_init[1, 3])
-# julia_assign('Ih_imp_4', Imp_init[1, 4])
-# julia_assign('dIh_imp_12', Imp_init[2, 2])
-# julia_assign('dIh_imp_13', Imp_init[2, 3])
-# julia_assign('dIh_imp_14', Imp_init[2, 4])
-# julia_assign('dIh_imp_21', Imp_init[3, 1])
-# julia_assign('dIh_imp_23', Imp_init[3, 3])
-# julia_assign('dIh_imp_24', Imp_init[3, 4])
-# julia_assign('dIh_imp_31', Imp_init[4, 1])
-# julia_assign('dIh_imp_32', Imp_init[4, 2])
-# julia_assign('dIh_imp_34', Imp_init[4, 4])
-# julia_assign('dIh_imp_41', Imp_init[5, 1])
-# julia_assign('dIh_imp_42', Imp_init[5, 2])
-# julia_assign('dIh_imp_43', Imp_init[5, 3])
-
-
-# julia_command("dSh_0 = round(0.423*pop) ;")
-# julia_command("dEh_1 = 0;")
-# julia_command("dIh_1 = 25;")
-# julia_command("dRh_1 = round((2/70)*0.227*pop);")
-# julia_command("dEh_2 = 0;")
-# julia_command("dIh_2 = 25;")
-# julia_command("dRh_2 = round((2/70)*0.227*pop);")
-# julia_command("dSh_1 = round((68/70)*0.227*pop);")
-# julia_command("dEh_12 = 0;")
-# julia_command("dIh_12 = 25;")
-# julia_command("dRh_12 = round(0.061*pop);")
-# julia_command("dSh_2 = round((68/70)*0.227*pop);")
-# julia_command("dEh_21 = 0;")
-# julia_command("dIh_21 = 25;")
-# julia_command("dRh_21 = round(0.061*pop);")
-
-# julia_command("Lm = 0;")
-# # start with all mosquitoes (human pop * 2) in first S compartment
-# julia_assign("Sm", pop*julia_eval('m'))
-# julia_command("Em1 = 0;")
-# julia_command("Im1 = 0;")
-# julia_command("Em2 = 0;")
-# julia_command("Im2 = 0;")
-# julia_command("Em3 = 0;")
-# julia_command("Im3 = 0;")
-# julia_command("Em4 = 0;")
-# julia_command("Im4 = 0;")
-#julia_command("sumdNm = sum(Sm+Em1+Im1+Em2+Im2+Em3+Im3+Em4+Im4) ;") # mosquito pop
-
 ######
 # Vector of all compartments and sims
 julia_command("outcomes0 = [];")
@@ -341,19 +196,10 @@ julia_command("for i=1:nsims
 ###############################################################
 ###############################################################
 
-# test and run model 1 time (1 timestep)
-# julia_command("x = dengue_2st!(x0,par,2)") #gives output
-# x = julia_eval("dengue_2st!(x0,par,2)") #saves output as list
-
 # set seed for reproducibility
-# julia_command("Random.seed!(12345);")
-# result <- julia_eval("run_4st_model_sims_randinit_imp!(nsims, tmax, x0, par)")
-# 
-# julia_source("/Users/michael/Library/CloudStorage/OneDrive-Personal/Documents/Projects/learn julia/test_named_output.jl")
-# result <- julia_eval("test_named_output!(nsims, tmax, x0, par)")
+julia_command("Random.seed!(12345);")
 
 result <- julia_eval("run_4st_model_sims_randinit_imp!(nsims, tmax, u0, outcomes0, par)")
-head(result$newcases_all_h)
 
 ###############################################################
 ###############################################################
@@ -364,52 +210,50 @@ colors <- brewer.pal(8, name = "Dark2")
 
 ############### NEWCASES
 # all (humans)
-df <- as.data.frame(result$newcases_all_h)
-df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
-for (i in 1:nsims) {
-  lines(1:tmax, df[, i], col = alpha(colors[1], 0.3))
+plot_all_humans <- function() {
+  df <- as.data.frame(result$newcases_all_h)
+  df$median <- apply(df, 1, median)
+  plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
+  for (i in 1:nsims) {
+    lines(1:tmax, df[, i], col = alpha(colors[1], 0.3))
+  }
+  lines(1:tmax, df$median, col = "black")
+  
+  x = 1:tmax
+  
+  for (i in 1:nsims) {
+    y = df[, i]
+    lw1 <- loess(y ~ x)
+    # j <- order(df[, i])
+    lines(x,lw1$fitted,col="red")
+  }
 }
-lines(1:tmax, df$median, col = "black")
-
-x = 1:tmax
-
-for (i in 1:nsims) {
-  y = df[, i]
-  lw1 <- loess(y ~ x)
-  # j <- order(df[, i])
-  lines(x,lw1$fitted,col="red")
-}
-
+#plot_all_humans()
 
 # serotype 1 and 2 (humans)
-df1 <- as.data.frame(result$newcases_st1_h)
-df2 <- as.data.frame(result$newcases_st2_h)
-df3 <- as.data.frame(result$newcases_st3_h)
-df4 <- as.data.frame(result$newcases_st4_h)
-# df1$median <- apply(df1, 1, median)
-# df2$median <- apply(df2, 1, median)
-# df1 <- as.data.frame(I1dt + I21dt + I31dt + I41dt)
-# df2 <- as.data.frame(I2dt + I12dt + I32dt + I42dt)
-# df3 <- as.data.frame(I3dt + I13dt + I23dt + I43dt)
-# df4 <- as.data.frame(I4dt + I14dt + I24dt + I34dt)
-# df1 <- as.data.frame(I1mdt)
-# df2 <- as.data.frame(I2mdt)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(10, max(df1, df2,df3,df4)), ylab = "New infections", xlab = "Weeks", bty = "n", log='y')
-for (i in 1:nsims) {
-  lines(1:tmax, df1[, i], col = alpha(colors[1], 0.3))
+plot_humans_by_seroptype <- function() {
+  df1 <- as.data.frame(result$newcases_st1_h)
+  df2 <- as.data.frame(result$newcases_st2_h)
+  df3 <- as.data.frame(result$newcases_st3_h)
+  df4 <- as.data.frame(result$newcases_st4_h)
+  
+  plot(NA, NA, xlim = c(0, tmax), ylim = c(10, max(df1, df2,df3,df4)), ylab = "New infections", xlab = "Weeks", bty = "n", log='y')
+  for (i in 1:nsims) {
+    lines(1:tmax, df1[, i], col = alpha(colors[1], 0.3))
+  }
+  # lines(1:tmax, df1$median, col = colors[2])
+  for (i in 1:nsims) {
+    lines(1:tmax, df2[, i], col = alpha(colors[2], 0.3))
+  }
+  # lines(1:tmax, df2$median, col = colors[3])
+  for (i in 1:nsims) {
+    lines(1:tmax, df3[, i], col = alpha(colors[3], 0.3))
+  }
+  for (i in 1:nsims) {
+    lines(1:tmax, df4[, i], col = alpha(colors[4], 0.3))
+  }
 }
-# lines(1:tmax, df1$median, col = colors[2])
-for (i in 1:nsims) {
-  lines(1:tmax, df2[, i], col = alpha(colors[2], 0.3))
-}
-# lines(1:tmax, df2$median, col = colors[3])
-for (i in 1:nsims) {
-  lines(1:tmax, df3[, i], col = alpha(colors[3], 0.3))
-}
-for (i in 1:nsims) {
-  lines(1:tmax, df4[, i], col = alpha(colors[4], 0.3))
-}
+plot_humans_by_seroptype()
 
 
 # df <- as.data.frame(I1dt)
@@ -432,45 +276,38 @@ for (i in 1:nsims) {
 
 ############### FOI
 # serotype 1 (humans)
-df <- as.data.frame(result$p_infect_h1)
-df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), 
-  ylab = "p_inf_1", xlab = "Weeks", bty = "n")
-for (i in 1:nsims) {
-  lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
+plot_foi_serotype <- function(stype) {
+  df <- as.data.frame(result[paste0('p_infect_h', stype)])
+  df$median <- apply(df, 1, median)
+  plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), 
+    ylab = "p_inf_1", xlab = "Weeks", bty = "n")
+  for (i in 1:nsims) {
+    lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
+  }
+  lines(1:tmax, df$median, col = colors[4])
 }
-lines(1:tmax, df$median, col = colors[4])
+#plot_foi_serotype(1)
 
-# serotype 2 (humans)
-df <- as.data.frame(result$p_infect_h2)
-df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "p_inf_2", xlab = "Weeks", bty = "n")
-for (i in 1:nsims) {
-  lines(1:tmax, df[, i], col = alpha(colors[5], 0.15))
+plot_populations <- function() {
+  df <- as.data.frame(result$hpop)
+  df$median <- apply(df, 1, median)
+  plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "Human pop", xlab = "Weeks", bty = "n")
+  for (i in 1:nsims) {
+    lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
+  }
+  lines(1:tmax, df$median, col = colors[4])
+  
+  df <- as.data.frame(result$mpop)
+  df$median <- apply(df, 1, median)
+  plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "Mosquito pop", xlab = "Weeks", bty = "n")
+  for (i in 1:nsims) {
+    lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
+  }
+  lines(1:tmax, df$median, col = colors[4])
 }
-lines(1:tmax, df$median, col = colors[5])
-
-
-df <- as.data.frame(result$hpop)
-df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "Human pop", xlab = "Weeks", bty = "n")
-for (i in 1:nsims) {
-  lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
-}
-lines(1:tmax, df$median, col = colors[4])
-
-
-df <- as.data.frame(result$mpop)
-df$median <- apply(df, 1, median)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "Mosquito pop", xlab = "Weeks", bty = "n")
-for (i in 1:nsims) {
-  lines(1:tmax, df[, i], col = alpha(colors[4], 0.15))
-}
-lines(1:tmax, df$median, col = colors[4])
-
+#plot_populations()
 
 ##### STACKED AREA PLOTS FOR COMPARTMENTS
-source("data_stackedareaplot.R")
 source("data_stackedareaplot-MAJ.R")
 data <- data_stackedareaplot2(list(
     Sh_0 = result$Sh_0, 
