@@ -65,9 +65,9 @@ model_parameters <- list(
   #beta_h = rep(0.5 * 0.38, length(tmax)), # seasonal transmission- mosquito to human
   # beta_h = 0.5 * 0.38 * (0.3 * cos((2*pi*(1:(tmax+365)) + 5.295594)/365) + 1), #seasonal transmission- mosquito to human
   mu_h = 1/(60*365) * 7, # human death rate; set equal to birthrate
-  p_IIP = min(1, 1/5 * 7), # progression rate out of human E state; from paper
-  p_IP = min(1, 1/6 * 7), # progression rate out of human I state; from paper
-  p_R = 1/365 * 7, # progression rate out of human cross-protective state; currently at 1 year; from paper
+  p_IIP = 1/5 * 7, # progression rate out of human E state; from paper
+  p_IP = 1/6 * 7, # progression rate out of human I state; from paper
+  p_R = 1 * 1/365 * 7, # progression rate out of human cross-protective state; currently at 1 year; from paper
   # p_imp = rep((100/365 * 7)/16,16),
   
   #mosquito
@@ -96,7 +96,8 @@ m*c*p_m*1/p_IP*exp(-mu_m/p_EIP) * c*p_h*1/mu_m
 c * p_m * 100 #lambdam
 c * p_m * 100 * m*3255603 * 1/p_IP
 
-julia_command("par = (; bh,beta_h,bm,phi_m,beta_m,mu_m,mu_mL,mu_h,p_IIP,p_IP,p_EIP,p_R,m)") # save all params into one vector to input into model function
+# save all params into one vector to input into model function
+julia_command("par = (; bh, beta_h, bm, phi_m, beta_m, mu_m, mu_mL, mu_h, p_IIP, p_IP, p_EIP, p_R, m)") 
 
 ######################################################
 ########### COMPARTMENTS
@@ -114,29 +115,29 @@ julia_assign("pop", pop) # Initial total population of PR
 # )
 # init_sims <- rdirichlet(nsims, c(0.2,0.025, 0.15, 0.05, 0.175,0.175, 0.025, 0.05, 0.15))
 
-n_stype <- 4
-initial_s <- 0.2#init_sims[,1]
-initial_s2 <- (diff(c(0, sort(sample(seq(0.001, 0.999, 0.001), 3)), 1)))*(0.2) #rep(0.2/4, 4) #c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(2:5)] #c(0.1, 0.1, 0.1, 0.1)#c(0.025, 0.15, 0.05, 0.175) #0.4
-initial_r1 <- c(0.0, 0.0, 0.0, 0.0)
-initial_r2 <- (diff(c(0, sort(sample(seq(0.001, 0.999, 0.001), 3)), 1)))*(0.6) #rep(0.6/4, 4)#c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(6:9)]#c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
-(initial_s + sum(initial_s2) + sum(initial_r1) + sum(initial_r2))
-init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
-
-E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
-I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
-S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
-#Imp_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
-Imp_init <- matrix(0, nrow=1, ncol=n_stype)
-
-# susceptible pop has to be > 0 --> keep re-drawing init_sims until this is true
-if (sum(S_naive_init > 0) < nsims) {
-  while (sum(S_naive_init > 0) < nsims) {
-    init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
-#    E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
-#    I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
-    S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
-  } 
-} 
+# n_stype <- 4
+# initial_s <- 0.2#init_sims[,1]
+# initial_s2 <- (diff(c(0, sort(sample(seq(0.001, 0.999, 0.001), 3)), 1)))*(0.2) #rep(0.2/4, 4) #c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(2:5)] #c(0.1, 0.1, 0.1, 0.1)#c(0.025, 0.15, 0.05, 0.175) #0.4
+# initial_r1 <- c(0.0, 0.0, 0.0, 0.0)
+# initial_r2 <- (diff(c(0, sort(sample(seq(0.001, 0.999, 0.001), 3)), 1)))*(0.6) #rep(0.6/4, 4)#c(0.1, 0.1, 0.1, 0.1)#init_sims[,c(6:9)]#c(0.1, 0.1, 0.1, 0.1)#c(0.175, 0.025, 0.05, 0.15) #0.4
+# (initial_s + sum(initial_s2) + sum(initial_r1) + sum(initial_r2))
+# init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
+# 
+# E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
+# I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
+# S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
+# #Imp_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
+# Imp_init <- matrix(0, nrow=1, ncol=n_stype)
+# 
+# # susceptible pop has to be > 0 --> keep re-drawing init_sims until this is true
+# if (sum(S_naive_init > 0) < nsims) {
+#   while (sum(S_naive_init > 0) < nsims) {
+#     init_sims <- rdirichlet(nsims, c(initial_s, initial_s2, initial_r2))
+# #    E_init <- matrix(0, nrow=(1+n_stype), ncol=n_stype)
+# #    I_init <- matrix(10, nrow=(1+n_stype), ncol=n_stype)
+#     S_naive_init <- round(init_sims[,c(1)] * pop) - sum(I_init) - sum(E_init)
+#   } 
+# } 
 
 compartment_names <- c('Sh_0', 'Eh_1', 'Ih_1', 'Rh_1', 'Sh_1', 
   'Eh_12', 'Eh_13', 'Eh_14', 'Ih_12', 'Ih_13', 'Ih_14', 
@@ -153,12 +154,12 @@ compartment_names <- c('Sh_0', 'Eh_1', 'Ih_1', 'Rh_1', 'Sh_1',
 init_compartments <- matrix(0, nrow=length(compartment_names), ncol=nsims, 
   dimnames = list(compartment_names, paste0('V', 1:nsims)))
 
-initial_s <- 0.2
-initial_s2 <- rep(0.1/4, 4)
-initial_r1 <- rep(0.3/4, 4)
-initial_r2 <- rep(0.4/12, 12)
+initial_s <- 0.5
+initial_s2 <- rep(0.2/4, 4)
+initial_r1 <- rep(0.2/4, 4)
+initial_r2 <- rep(0.1/12, 12)
 #init_h <- round(pop * t(rdirichlet(nsims, c(initial_s, initial_s2, initial_r1, initial_r2))))
-# TODO: too variable, Sh_0 should always be high
+# rdirichlet too variable, Sh_0 should always be high
 init_h <- rmultinom(3, size=pop, prob=c(initial_s, initial_s2, initial_r1, initial_r2))
 rownames(init_h) <- c('Sh_0', 'Sh_1', 'Sh_2', 'Sh_3', 'Sh_4', 
   "Rh_1", "Rh_2", "Rh_3", "Rh_4", "Rh_12", 'Rh_13', 'Rh_14', 'Rh_21', 'Rh_23', 'Rh_24', 
@@ -171,7 +172,8 @@ init_compartments["Sm", ] <- pop * model_parameters$m
 
 # use imported cases to initialize transmission
 for (imp_compartment in c('Ih_imp_1', 'Ih_imp_2', 'Ih_imp_3', 'Ih_imp_4')) {
-  init_compartments[imp_compartment, ] <- rpois(nsims, 10)
+#  init_compartments[imp_compartment, ] <- rpois(nsims, 10)
+  init_compartments[imp_compartment, ] <- rnbinom(nsims, mu=10, size = 0.1)
 }
 
 # transfer initial values to Julia
@@ -291,13 +293,13 @@ for (i in 1:nsims) {
 # julia_command("Im3 = 0;")
 # julia_command("Em4 = 0;")
 # julia_command("Im4 = 0;")
-julia_command("sumdNm = sum(Sm+Em1+Im1+Em2+Im2+Em3+Im3+Em4+Im4) ;") # mosquito pop
+#julia_command("sumdNm = sum(Sm+Em1+Im1+Em2+Im2+Em3+Im3+Em4+Im4) ;") # mosquito pop
 
 ######
 # Vector of all compartments and sims
 julia_command("outcomes0 = [];")
 julia_command("for i=1:nsims
-                push!(outcomes0, (; hpop = pop, mpop = sumdNm, lpop = 0, 
+                push!(outcomes0, (; hpop = pop, mpop = pop * m, lpop = 0, 
                     hbirths = 0, hdeaths= 0, newcases_all_h = 0, newcases_all_m = 0, 
                     newcases_st1_h = 0, newcases_st2_h = 0, newcases_st3_h = 0, newcases_st4_h = 0,
                     p_infect_h1 = 0, p_infect_h2 = 0, p_infect_h3 = 0, p_infect_h4 = 0, 
@@ -393,7 +395,7 @@ df4 <- as.data.frame(result$newcases_st4_h)
 # df4 <- as.data.frame(I4dt + I14dt + I24dt + I34dt)
 # df1 <- as.data.frame(I1mdt)
 # df2 <- as.data.frame(I2mdt)
-plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df1, df2,df3,df4)), ylab = "New infections", xlab = "Weeks", bty = "n")
+plot(NA, NA, xlim = c(0, tmax), ylim = c(10, max(df1, df2,df3,df4)), ylab = "New infections", xlab = "Weeks", bty = "n", log='y')
 for (i in 1:nsims) {
   lines(1:tmax, df1[, i], col = alpha(colors[1], 0.3))
 }
@@ -468,26 +470,38 @@ lines(1:tmax, df$median, col = colors[4])
 
 
 ##### STACKED AREA PLOTS FOR COMPARTMENTS
-
-S.col <- brewer.pal(9, "GnBu")[7:9]
-E.col <- brewer.pal(9, "Purples")[6:9]
-I.col <- brewer.pal(9, "YlOrRd")[6:9]
-R.col <- brewer.pal(9, "BuGn")[6:9]
-
 source("data_stackedareaplot.R")
-
-
-data <- data_stackedareaplot(result$Sh_0, result$Sh_1, result$Sh_2,
-  result$Eh_1, result$Eh_2, result$Eh_12, result$Eh_21,
-  result$Ih_1, result$Ih_2, result$Ih_12, result$Ih_21,
-  result$Rh_1, result$Rh_2, result$Rh_12, result$Rh_21,
-  nsims = nsims, tmax = tmax
-)
+source("data_stackedareaplot-MAJ.R")
+data <- data_stackedareaplot2(list(
+    Sh_0 = result$Sh_0, 
+    Sh_secondary = result$Sh_1 + result$Sh_2 + result$Sh_3 + result$Sh_4,
+    EI_primary = result$Eh_1 + result$Eh_2 + result$Eh_3 + result$Eh_4 + 
+        result$Ih_1 + result$Ih_2 + result$Ih_3 + result$Ih_4,
+    EI_secondary = result$Eh_12 + result$Eh_13 + result$Eh_14 + 
+        result$Eh_21 + result$Eh_23 + result$Eh_24 + 
+        result$Eh_31 + result$Eh_32 + result$Eh_34 +  
+        result$Eh_41 + result$Eh_42 + result$Eh_43 +  
+        result$Ih_12 + result$Ih_13 + result$Ih_14 + 
+        result$Ih_21 + result$Ih_23 + result$Ih_24 + 
+        result$Ih_31 + result$Ih_32 + result$Ih_34 +  
+        result$Ih_41 + result$Ih_42 + result$Ih_43,
+    R_primary = result$Rh_1 + result$Rh_2 + result$Rh_3 + result$Rh_4,
+    R_secondary = result$Rh_12 + result$Rh_13 + result$Rh_14 + 
+        result$Rh_21 + result$Rh_23 + result$Rh_24 + 
+        result$Rh_31 + result$Rh_32 + result$Rh_34 +  
+        result$Rh_41 + result$Rh_42 + result$Rh_43
+  ))
+  
+  
+S.col <- brewer.pal(9, "GnBu")[8:9]
+E.col <- brewer.pal(9, "Purples")[8:9]
+I.col <- brewer.pal(9, "YlOrRd")[8:9]
+R.col <- brewer.pal(9, "BuGn")[8:9]
 
 # Population distribution of each compartment over timeframe
 ggplot(data, aes(x = time, y = value_perc, fill = group)) +
   geom_area() +
   theme_classic() +
   ggtitle("4-serotype model") +
-  scale_fill_manual(values = c(R.col, S.col, E.col, I.col))
+  scale_fill_manual(values = c(S.col, I.col, R.col))
 

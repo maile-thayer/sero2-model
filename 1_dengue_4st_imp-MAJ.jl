@@ -13,10 +13,14 @@ end
 function dengue_4st_imp!(u, par, t) 
     
     #sum compartments for FOIh
-    sumNh = u.Sh_0 + u.Eh_1 + u.Ih_1 + u.Rh_1 + u.Sh_1 + u.Eh_12 + u.Eh_13 + u.Eh_14 + u.Ih_12 + u.Ih_13 + u.Ih_14 + u.Rh_12 + u.Rh_13 + u.Rh_14 + u.
-          Eh_2 + u.Ih_2 + u.Rh_2 + u.Sh_2 + u.Eh_21 + u.Eh_23 + u.Eh_24 + u.Ih_21 + u.Ih_23 + u.Ih_24 + u.Rh_21 + u.Rh_23 + u.Rh_24 + u.
-          Eh_3 + u.Ih_3 + u.Rh_3 + u.Sh_3 + u.Eh_31 + u.Eh_32 + u.Eh_34 + u.Ih_31 + u.Ih_32 + u.Ih_34 + u.Rh_31 + u.Rh_32 + u.Rh_34 + u.
-          Eh_4 + u.Ih_4 + u.Rh_4 + u.Sh_4 + u.Eh_41 + u.Eh_42 + u.Eh_43 + u.Ih_41 + u.Ih_42 + u.Ih_43 + u.Rh_41 + u.Rh_42 + u.Rh_43
+    sumNh = u.Sh_0 + u.Eh_1 + u.Ih_1 + u.Rh_1 + u.Sh_1 + 
+          u.Eh_12 + u.Eh_13 + u.Eh_14 + u.Ih_12 + u.Ih_13 + u.Ih_14 + u.Rh_12 + u.Rh_13 + u.Rh_14 + 
+          u.Eh_2 + u.Ih_2 + u.Rh_2 + u.Sh_2 + 
+          u.Eh_21 + u.Eh_23 + u.Eh_24 + u.Ih_21 + u.Ih_23 + u.Ih_24 + u.Rh_21 + u.Rh_23 + u.Rh_24 +
+          u.Eh_3 + u.Ih_3 + u.Rh_3 + u.Sh_3 + 
+          u.Eh_31 + u.Eh_32 + u.Eh_34 + u.Ih_31 + u.Ih_32 + u.Ih_34 + u.Rh_31 + u.Rh_32 + u.Rh_34 +
+          u.Eh_4 + u.Ih_4 + u.Rh_4 + u.Sh_4 +
+          u.Eh_41 + u.Eh_42 + u.Eh_43 + u.Ih_41 + u.Ih_42 + u.Ih_43 + u.Rh_41 + u.Rh_42 + u.Rh_43
     sumNm = u.Sm + u.Em1 + u.Im1 + u.Em2 + u.Im2 + u.Em3 + u.Im3 + u.Em4 + u.Im4
 
     # force of infection
@@ -58,6 +62,7 @@ function dengue_4st_imp!(u, par, t)
     deaths += Eh3_trans[2]
     Eh4_trans = multinom_samp(u.Eh_4, [p_mort_h, p_infectious])
     deaths += Eh4_trans[2]
+    
     Ih1_trans = multinom_samp(u.Ih_1, [p_mort_h, p_recover])
     deaths += Ih1_trans[2]
     Ih2_trans = multinom_samp(u.Ih_2, [p_mort_h, p_recover])
@@ -66,6 +71,7 @@ function dengue_4st_imp!(u, par, t)
     deaths += Ih3_trans[2]
     Ih4_trans = multinom_samp(u.Ih_4, [p_mort_h, p_recover])
     deaths += Ih4_trans[2]
+    
     Rh1_trans = multinom_samp(u.Rh_1, [p_mort_h, p_lose_cross_protection])
     deaths += Rh1_trans[2]
     Rh2_trans = multinom_samp(u.Rh_2, [p_mort_h, p_lose_cross_protection])
@@ -74,6 +80,7 @@ function dengue_4st_imp!(u, par, t)
     deaths += Rh3_trans[2]
     Rh4_trans = multinom_samp(u.Rh_4, [p_mort_h, p_lose_cross_protection])
     deaths += Rh4_trans[2]
+    
     Sh1_trans = multinom_samp(u.Sh_1, [p_mort_h, p_infect_h2, p_infect_h3, p_infect_h4])
     deaths += Sh1_trans[2]
     new_Eh12 = Sh1_trans[3]
@@ -170,14 +177,10 @@ function dengue_4st_imp!(u, par, t)
     Rh43_trans = multinom_samp(u.Rh_43, [p_mort_h, p_lose_cross_protection])
     deaths += Rh43_trans[2]
 
-    Ih1_imp_trans = multinom_samp(Ih_imp_1, [p_mort_h, p_recover])
-    #deaths += Ih1_imp_trans[2]
-    Ih2_imp_trans = multinom_samp(Ih_imp_2, [p_mort_h, p_recover])
-    #deaths += Ih2_trans[2]
-    Ih3_imp_trans = multinom_samp(Ih_imp_3, [p_mort_h, p_recover])
-    #deaths += Ih3_trans[2]
-    Ih4_imp_trans = multinom_samp(Ih_imp_4, [p_mort_h, p_recover])
-    #deaths += Ih4_trans[2]
+    Ih1_imp_trans = multinom_samp(Ih_imp_1, [p_recover])
+    Ih2_imp_trans = multinom_samp(Ih_imp_2, [p_recover])
+    Ih3_imp_trans = multinom_samp(Ih_imp_3, [p_recover])
+    Ih4_imp_trans = multinom_samp(Ih_imp_4, [p_recover])
 
     importations = rand(Multinomial(Integer(round(100/52)), repeat([1/4], 4)))
     new_imp1 = importations[1]
@@ -266,10 +269,10 @@ function dengue_4st_imp!(u, par, t)
       Rh_42 = u.Rh_42 - Rh42_trans[2] + Ih42_trans[3],
       Rh_43 = u.Rh_43 - Rh43_trans[2] + Ih43_trans[3],
     
-      Ih_imp_1 = u.Ih_imp_1 - Ih1_imp_trans[2] - Ih1_imp_trans[3] + new_imp1,
-      Ih_imp_2 = u.Ih_imp_2 - Ih2_imp_trans[2] - Ih2_imp_trans[3] + new_imp2, 
-      Ih_imp_3 = u.Ih_imp_3 - Ih3_imp_trans[2] - Ih3_imp_trans[3] + new_imp3,
-      Ih_imp_4 = u.Ih_imp_4 - Ih4_imp_trans[2] - Ih4_imp_trans[3] + new_imp4,
+      Ih_imp_1 = u.Ih_imp_1 - Ih1_imp_trans[2] + new_imp1,
+      Ih_imp_2 = u.Ih_imp_2 - Ih2_imp_trans[2] + new_imp2, 
+      Ih_imp_3 = u.Ih_imp_3 - Ih3_imp_trans[2] + new_imp3,
+      Ih_imp_4 = u.Ih_imp_4 - Ih4_imp_trans[2] + new_imp4,
 
       ###### MOSQUITO STATE UPDATES ######
       Lm = Lm_trans[1] + eggs,
@@ -301,19 +304,19 @@ function dengue_4st_imp!(u, par, t)
                     new_Eh31 + new_Eh32 + new_Eh34 + 
                     new_Eh41 + new_Eh42 + new_Eh43
     newcases_all_m = new_Em1 + new_Em2 + new_Em3 + new_Em4
-    hpop = du.Sh_0+du.Eh_1+du.Ih_1+du.Rh_1+du.Sh_1+
-            du.Eh_12+du.Eh_13+du.Eh_14+du.Ih_12+du.Ih_13+du.Ih_14+
-            du.Rh_12+du.Rh_13+du.Rh_14+
-            du.Eh_2+du.Ih_2+du.Rh_2+du.Sh_2+
-            du.Eh_21+du.Eh_23+du.Eh_24+du.Ih_21+du.Ih_23+du.Ih_24+
-            du.Rh_21+du.Rh_23+du.Rh_24+
-            du.Eh_3+du.Ih_3+du.Rh_3+du.Sh_3+
-            du.Eh_31+du.Eh_32+du.Eh_34+du.Ih_31+du.Ih_32+du.Ih_34+
-            du.Rh_31+du.Rh_32+du.Rh_34+
-            du.Eh_4+du.Ih_4+du.Rh_4+du.Sh_4+
-            du.Eh_41+du.Eh_42+du.Eh_43+du.Ih_41+du.Ih_42+du.Ih_43+
-            du.Rh_41+du.Rh_42+du.Rh_43
-    mpop = du.Sm+du.Em1+du.Im1+du.Em2+du.Im2+du.Em3+du.Im3+du.Em4+du.Im4
+    hpop = du.Sh_0 + du.Eh_1 + du.Ih_1 + du.Rh_1 + du.Sh_1 + 
+            du.Eh_12 + du.Eh_13 + du.Eh_14 + du.Ih_12 + du.Ih_13 + du.Ih_14 + 
+            du.Rh_12 + du.Rh_13 + du.Rh_14 + 
+            du.Eh_2 + du.Ih_2 + du.Rh_2 + du.Sh_2 + 
+            du.Eh_21 + du.Eh_23 + du.Eh_24 + du.Ih_21 + du.Ih_23 + du.Ih_24 + 
+            du.Rh_21 + du.Rh_23 + du.Rh_24 + 
+            du.Eh_3 + du.Ih_3 + du.Rh_3 + du.Sh_3 + 
+            du.Eh_31 + du.Eh_32 + du.Eh_34 + du.Ih_31 + du.Ih_32 + du.Ih_34 + 
+            du.Rh_31 + du.Rh_32 + du.Rh_34 + 
+            du.Eh_4 + du.Ih_4 + du.Rh_4 + du.Sh_4 + 
+            du.Eh_41 + du.Eh_42 + du.Eh_43 + du.Ih_41 + du.Ih_42 + du.Ih_43 + 
+            du.Rh_41 + du.Rh_42 + du.Rh_43
+    mpop = du.Sm + du.Em1 + du.Im1 + du.Em2 + du.Im2 + du.Em3 + du.Im3 + du.Em4 + du.Im4
     lpop = du.Lm
 
     tot_imp = du.Ih_imp_1 + du.Ih_imp_2 + du.Ih_imp_3 + du.Ih_imp_4
