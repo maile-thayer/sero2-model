@@ -21,12 +21,12 @@ julia <- julia_setup(JULIA_HOME = "C:/Users/ruu6/AppData/Local/Programs/Julia-1.
 # julia_install_package_if_needed("Random")
 julia_library("Random, Distributions, DataFrames, LinearAlgebra, CSV, JLD2, Dates")
 
-julia_source("1_dengue_4st_imp.jl") # load main model function
-julia_source("2_run_4st_model_sims_randinit_imp.jl") # load function to run main model
+julia_source("1_dengue_4st_imp_diffp.jl") # load main model function
+julia_source("2_run_4st_model_sims_randinit_imp_diffp.jl") # load function to run main model
 
-julia_exists("dengue_4st_imp!") # test whether functions loaded and exist :)
+julia_exists("dengue_4st_imp_diffp!") # test whether functions loaded and exist :)
 julia_exists("multinom_samp")
-julia_exists("run_4st_model_sims_randinit_imp!")
+julia_exists("run_4st_model_sims_randinit_imp_diffp!")
 
 ##############################################################
 ###############################################################
@@ -54,7 +54,10 @@ model_parameters <- list(
   bh = 1/(60*365) * 7, # birthrate; from paper
   m = 2, # initial ratio of mosquitoes to humans; from literature
   c = 0.5 * 7, # contact rate (biting rate); from paper
-  p_h = 0.1, # probability of a human being infected by an infected mosquito bite; paper 0.38
+  p_h1 = 0.1, # probability of a human being infected by an infected mosquito bite; paper 0.38
+  p_h2 = 0.09,
+  p_h3 = 0.11,
+  p_h4 = 0.1,
   #beta_h = rep(0.5 * 0.38, length(tmax)), # seasonal transmission- mosquito to human
   # beta_h = 0.5 * 0.38 * (0.3 * cos((2*pi*(1:(tmax+365)) + 5.295594)/365) + 1), #seasonal transmission- mosquito to human
   mu_h = 1/(60*365) * 7, # human death rate; set equal to birthrate
@@ -76,15 +79,20 @@ model_parameters <- list(
 for (i in 1:length(model_parameters)) {
   julia_assign(names(model_parameters)[i], model_parameters[[i]])
 }
+
+# p_h <- julia_assign("p_h", "[p_h1 p_h2 p_h3 p_h4]")
 #beta_h <- julia_eval("beta_h = c * p_h * ones(tmax);") # ((0.3 *(cos.(((2*pi*tspan).+ 5.295594)/365))).+ 1);") #seasonal transmission- mosquito to human
-beta_h <- julia_eval("beta_h = c * p_h * ((0.3 *(cos.(((2*pi*tspan).+ 5.295594)/52))).+ 1);") #seasonal transmission- mosquito to human
+# beta_h <- julia_eval("beta_h = c * p_h * ((0.3 *(cos.(((2*pi*tspan).+ 5.295594)/52))).+ 1);") #seasonal transmission- mosquito to human
+beta_h <- julia_eval("beta_h = c * [p_h1 p_h2 p_h3 p_h4].* ((0.3 *(cos.(((2*pi*tspan).+ 5.295594)/52))).+ 1);")
 beta_m <- julia_eval("beta_m = c * p_m;") # human-to-mosquito transmission rate
 
 attach(model_parameters)
 (m*median(beta_h)*beta_m*p_EIP)/(mu_m*(p_IP+bh)*(p_EIP+mu_m))
-(m*c*p_h*c*p_m*p_EIP) / (mu_m*(p_IP+bh)*(p_EIP+mu_m))
+# (m*c*p_h*c*p_m*p_EIP) / (mu_m*(p_IP+bh)*(p_EIP+mu_m))
 
-m*c*p_m*1/p_IP*exp(-mu_m/p_EIP) * c*p_h*1/mu_m
+(m*c*c(p_h1,p_h2,p_h3,p_h4)*c*p_m*p_EIP) / (mu_m*(p_IP+bh)*(p_EIP+mu_m))
+
+m*c*p_m*1/p_IP*exp(-mu_m/p_EIP) * c*c(p_h1,p_h2,p_h3,p_h4)*1/mu_m
 
 c * p_m * 100 #lambdam
 c * p_m * 100 * m*3255603 * 1/p_IP
@@ -297,7 +305,7 @@ julia_command("for j=1:nsims
 
 # set seed for reproducibility
 julia_command("Random.seed!(12345);")
-result <- julia_eval("run_4st_model_sims_randinit_imp!(nsims, tmax, x0, par)")
+result <- julia_eval("run_4st_model_sims_randinit_imp_diffp!(nsims, tmax, x0, par)")
 # saved result is a 'JuliaObject' list of 34 nsims*tmax matrices
 
 # CASES
@@ -405,11 +413,23 @@ colors <- brewer.pal(8, name = "Dark2")
 # all (humans)
 df <- as.data.frame(newcases_all_h)
 df$median <- apply(df, 1, median)
+
+# i = 1
+# plot(NA, NA, xlim = c(4000, 5000), ylim = c(0, 20), ylab = "New infections", xlab = "Weeks", bty = "n")
+# lines(1:tmax, df[, 1], col = colors[1])
+# lines(1:tmax, df[, 2], col = colors[2])
+# lines(1:tmax, df[, 3], col = colors[3])
+j = j+1
+plot(NA, NA, xlim = c(5000+(j*1000), 5000+(j*1000)+1000), ylim = c(0, 30), ylab = "New infections", xlab = "Weeks", bty = "n")
+lines(1:tmax, df[, 1], col = colors[1])
+
+
+
 plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
   lines(1:tmax, df[, i], col = alpha(colors[1], 0.3))
 }
-lines(1:tmax, df$median, col = "black")
+lines(1:tmax, df$median, col = "black", lwd=2)
 
 x = 1:tmax
 
@@ -436,7 +456,10 @@ df4$median <- apply(df4, 1, median)
 # df4 <- as.data.frame(I4dt + I14dt + I24dt + I34dt)
 # df1 <- as.data.frame(I1mdt)
 # df2 <- as.data.frame(I2mdt)
-plot(NA, NA, xlim = c(tmax-1000, tmax), ylim = c(0, 20), ylab = "New infections", xlab = "Weeks", bty = "n")
+# plot(NA, NA, xlim = c(tmax-1000, tmax), ylim = c(0, 20), ylab = "New infections", xlab = "Weeks", bty = "n")
+plot(NA, NA, xlim = c(0, tmax), ylim = c(0, 5), ylab = "New infections", xlab = "Weeks", bty = "n")
+
+plot(NA, NA, xlim = c(1000, 2000), ylim = c(0, 5), ylab = "New infections", xlab = "Weeks", bty = "n")
 
 plot(NA, NA, xlim = c(0, tmax), ylim = c(0, max(df1, df2,df3,df4)), ylab = "New infections", xlab = "Weeks", bty = "n")
 for (i in 1:nsims) {
