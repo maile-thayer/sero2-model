@@ -146,10 +146,10 @@ for (imp_compartment in c('Ih_imp_1', 'Ih_imp_2', 'Ih_imp_3', 'Ih_imp_4')) {
 # transfer initial values to Julia
 julia_assign("init_compartments", init_compartments)
 julia_assign("input_compartment_names", compartment_names)
-julia_command("input_compartment_names = Symbol.(input_compartment_names)")
+julia_command("input_compartment_names = Tuple(Symbol.(input_compartment_names))")
 julia_command("u0 = [];")
 for (i in 1:nsims) {
-  julia_command(paste0('push!(u0, NamedTuple{compartment_names}(init_compartments[:, ', i, ']))'))
+  julia_command(paste0('push!(u0, NamedTuple{input_compartment_names}(init_compartments[:, ', i, ']))'))
 }
 
 ######
