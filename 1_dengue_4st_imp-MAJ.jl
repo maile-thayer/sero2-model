@@ -177,10 +177,10 @@ function dengue_4st_imp!(u, par, t)
     Rh43_trans = multinom_samp(u.Rh_43, [p_mort_h, p_lose_cross_protection])
     deaths += Rh43_trans[2]
 
-    Ih1_imp_trans = multinom_samp(Ih_imp_1, [p_recover])
-    Ih2_imp_trans = multinom_samp(Ih_imp_2, [p_recover])
-    Ih3_imp_trans = multinom_samp(Ih_imp_3, [p_recover])
-    Ih4_imp_trans = multinom_samp(Ih_imp_4, [p_recover])
+    Ih1_imp_trans = multinom_samp(u.Ih_imp_1, [p_recover])
+    Ih2_imp_trans = multinom_samp(u.Ih_imp_2, [p_recover])
+    Ih3_imp_trans = multinom_samp(u.Ih_imp_3, [p_recover])
+    Ih4_imp_trans = multinom_samp(u.Ih_imp_4, [p_recover])
 
     importations = rand(Multinomial(Integer(round(100/52)), repeat([1/4], 4)))
     new_imp1 = importations[1]
