@@ -53,7 +53,7 @@ tspan <- julia_eval("tspan = collect(0.0:(tmax+52));")
 # nsims=2
 nsims <- julia_eval("nsims = 10;")
 
-detach(model_parameters)
+#detach(model_parameters)
 ######## HUMAN PARAMETERS ########
 model_parameters <- list(
   # human
