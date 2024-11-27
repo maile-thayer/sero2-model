@@ -8,7 +8,7 @@ library('deSolve')
 
 
 # Load necessary functions.
-source('seirsei.R')
+source('Garcia-Carreras model/seirsei.R')
 
 
 # Time points at which we want estimates (in days).
@@ -109,3 +109,18 @@ z2 <- as.data.frame(z) %>%
          Ph_all = Ph1+Ph2+Ph3+Ph4,
          Rh_all = Rh1+Rh2+Rh3+Rh4)
 plot(z2$time,z2$Eh_all, type="l",ylim=c(0,1500))
+
+newI <- mutate(as_tibble(z),
+  inf1 = Ih1 + Ih21 + Ih31 + Ih41,
+  inf2 = Ih2 + Ih12 + Ih32 + Ih42,
+  inf3 = Ih3 + Ih13 + Ih23 + Ih43,
+  inf4 = Ih4 + Ih14 + Ih24 + Ih34,
+  inf_all = inf1 + inf2 + inf3 + inf4) %>%
+  select(time, inf1, inf2, inf3, inf4, inf_all) %>%
+  slice(-(1:(52*3)))
+plot(1, 1, type='n', xlim=range(newI$time), ylim=range(select(newI, -time)))
+lines(select(newI, time, inf_all))
+lines(select(newI, time, inf1), col='blue')
+lines(select(newI, time, inf2), col='red')
+lines(select(newI, time, inf3), col='darkgreen')
+lines(select(newI, time, inf4), col='darkorange')
