@@ -12,7 +12,7 @@ source('seirsei.R')
 
 
 # Time points at which we want estimates (in days).
-times = seq(from = 1, to = 50000, by = 7)
+times = seq(from = 1, to = 2000, by = 7)
 
 # Duration of cross-protection between serotypes (in months).
 cross_prot = 12
@@ -54,7 +54,7 @@ dat = data.frame(times = x,
                  temps = 10 / 2 * sin(2 * pi * x / 52) + 26 + 
                    runif(n = length(x), min = -5, max = 5))
 
-TempFunDat = approxfun(dat$temps, x = dat$times * 7)
+TempFunDat = approxfun(dat$temps, x = dat$times)
 
 
 
@@ -72,7 +72,7 @@ pars = list(N_h = 1e6,          # Number of hosts.
             delta_h = 1/5.9,    # Incubation rate.
             eta_h = 1/5,        # Recovery rate.
             xi_h = 1 / (cross_prot / 12 * 365.25),  # Inverse of cross-protection.
-            TempFun = TempFunSine,  # Temperature function to be used.
+            TempFun = TempFunDat, # TempFunSine,  # Temperature function to be used.
             times = times,      # Time points at which to produce estimates.
             trickle = 1e-5)     # Added to vector compartments (see note in seirsei.R).
 
@@ -95,6 +95,7 @@ names(dxdt) = paste0('d', names(xstart))
 
 z = ode(func = RunSEIRSEI4Sero, times = pars$times, y = xstart, parms = pars,
         rtol = 1e-12)
+# rtol = 1e-12
 
 require(tidyverse)
 z2 <- as.data.frame(z) %>%
