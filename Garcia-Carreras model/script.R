@@ -8,11 +8,11 @@ library('deSolve')
 
 
 # Load necessary functions.
-source('seirsei.R')
+source('Garcia-Carreras model/seirsei.R')
 
 
 # Time points at which we want estimates (in days).
-times = seq(from = 1, to = 50000, by = 7)
+times = seq(from = 1, to = 50 * 365, by = 7)
 
 # Duration of cross-protection between serotypes (in months).
 cross_prot = 12
@@ -109,3 +109,52 @@ z2 <- as.data.frame(z) %>%
          Ph_all = Ph1+Ph2+Ph3+Ph4,
          Rh_all = Rh1+Rh2+Rh3+Rh4)
 plot(z2$time,z2$Eh_all, type="l",ylim=c(0,1500))
+
+newI <- mutate(as_tibble(z),
+  inf1 = Ih1 + Ih21 + Ih31 + Ih41,
+  inf2 = Ih2 + Ih12 + Ih32 + Ih42,
+  inf3 = Ih3 + Ih13 + Ih23 + Ih43,
+  inf4 = Ih4 + Ih14 + Ih24 + Ih34,
+  inf_all = inf1 + inf2 + inf3 + inf4) %>%
+  select(time, inf1, inf2, inf3, inf4, inf_all) %>%
+  slice(-(1:(52*3)))
+plot(1, 1, type='n', xlim=range(newI$time), ylim=range(select(newI, -time)))
+lines(select(newI, time, inf_all))
+lines(select(newI, time, inf1), col='blue')
+lines(select(newI, time, inf2), col='red')
+lines(select(newI, time, inf3), col='darkgreen')
+lines(select(newI, time, inf4), col='darkorange')
+
+##### STACKED AREA PLOTS FOR COMPARTMENTS
+source("data_stackedareaplot-MAJ.R")
+result <- as.data.frame(z)
+data <- data_stackedareaplot2(list(
+  Sh_0 = result$Sh, 
+  Sh_secondary = result$Rh1 + result$Rh2 + result$Rh3 + result$Rh4,
+  EI_primary = result$Eh1 + result$Eh2 + result$Eh3 + result$Eh4 + 
+    result$Ih1 + result$Ih2 + result$Ih3 + result$Ih4,
+  EI_secondary = result$Eh12 + result$Eh13 + result$Eh14 + 
+    result$Eh21 + result$Eh23 + result$Eh24 + 
+    result$Eh31 + result$Eh32 + result$Eh34 +  
+    result$Eh41 + result$Eh42 + result$Eh43 +  
+    result$Ih12 + result$Ih13 + result$Ih14 + 
+    result$Ih21 + result$Ih23 + result$Ih24 + 
+    result$Ih31 + result$Ih32 + result$Ih34 +  
+    result$Ih41 + result$Ih42 + result$Ih43,
+  R_primary = result$Ph1 + result$Ph2 + result$Ph3 + result$Ph4,
+  R_secondary = result$Rh
+))
+
+
+S.col <- brewer.pal(9, "GnBu")[8:9]
+E.col <- brewer.pal(9, "Purples")[8:9]
+I.col <- brewer.pal(9, "YlOrRd")[8:9]
+R.col <- brewer.pal(9, "BuGn")[8:9]
+
+# Population distribution of each compartment over timeframe
+ggplot(data, aes(x = time, y = value_perc, fill = group)) +
+  geom_area() +
+  theme_classic() +
+  ggtitle("4-serotype model") +
+  scale_fill_manual(values = c(S.col, I.col, R.col))
+

@@ -1,6 +1,11 @@
 require(tidyverse)
 
 data_stackedareaplot2 <- function(mats = list(), nsims=NULL, tmax=NULL) {
+  if (!is.matrix(mats[[1]])) {
+    for (i in 1:length(mats)) {
+      mats[[i]] <- as.matrix(mats[[i]], nrow=length(mats[[i]])) 
+    }
+  }
   if (is.null(nsims)) nsims <- ncol(mats[[1]])
   if (is.null(tmax)) tmax <- nrow(mats[[1]])
   medians <- tibble()
