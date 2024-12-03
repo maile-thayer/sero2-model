@@ -12,7 +12,7 @@ source('Garcia-Carreras model/seirsei.R')
 
 
 # Time points at which we want estimates (in days).
-times = seq(from = 1, to = 50 * 365, by = 7)
+times = seq(from = 1, to = 20 * 365, by = 7)
 
 # Duration of cross-protection between serotypes (in months).
 cross_prot = 12
@@ -97,33 +97,48 @@ z = ode(func = RunSEIRSEI4Sero, times = pars$times, y = xstart, parms = pars,
         rtol = 1e-12)
 
 require(tidyverse)
-z2 <- as.data.frame(z) %>%
-  mutate(Eh_all = Eh1+Eh2+Eh3+Eh4+
-            Eh12+Eh21+Eh31+Eh41+
-            Eh13+Eh23+Eh32+Eh42+
-            Eh14+Eh24+Eh34+Eh43,
-         Ih_all = Ih1+Ih2+Ih3+Ih4+
-           Ih12+Ih21+Ih31+Ih41+
-           Ih13+Ih23+Ih32+Ih42+
-           Ih14+Ih24+Ih34+Ih43,
-         Ph_all = Ph1+Ph2+Ph3+Ph4,
-         Rh_all = Rh1+Rh2+Rh3+Rh4)
-plot(z2$time,z2$Eh_all, type="l",ylim=c(0,1500))
+library(RColorBrewer)
+# z2 <- as.data.frame(z) %>%
+#   mutate(Eh_all = Eh1+Eh2+Eh3+Eh4+
+#             Eh12+Eh21+Eh31+Eh41+
+#             Eh13+Eh23+Eh32+Eh42+
+#             Eh14+Eh24+Eh34+Eh43,
+#          Ih_all = Ih1+Ih2+Ih3+Ih4+
+#            Ih12+Ih21+Ih31+Ih41+
+#            Ih13+Ih23+Ih32+Ih42+
+#            Ih14+Ih24+Ih34+Ih43,
+#          Ph_all = Ph1+Ph2+Ph3+Ph4,
+#          Rh_all = Rh1+Rh2+Rh3+Rh4)
+# plot(z2$time,z2$Eh_all, type="l",ylim=c(0,1500))
 
 newI <- mutate(as_tibble(z),
+  time = (time - 1)/7,
   inf1 = Ih1 + Ih21 + Ih31 + Ih41,
   inf2 = Ih2 + Ih12 + Ih32 + Ih42,
   inf3 = Ih3 + Ih13 + Ih23 + Ih43,
   inf4 = Ih4 + Ih14 + Ih24 + Ih34,
   inf_all = inf1 + inf2 + inf3 + inf4) %>%
-  select(time, inf1, inf2, inf3, inf4, inf_all) %>%
-  slice(-(1:(52*3)))
-plot(1, 1, type='n', xlim=range(newI$time), ylim=range(select(newI, -time)))
+  select(time, inf1, inf2, inf3, inf4, inf_all) %>% slice(-(1:(52*6)))
+plot(1, 1, type='n', xlim=range(newI$time), ylim=range(select(newI, -time)), 
+  ylab='I humans')
 lines(select(newI, time, inf_all))
 lines(select(newI, time, inf1), col='blue')
 lines(select(newI, time, inf2), col='red')
 lines(select(newI, time, inf3), col='darkgreen')
 lines(select(newI, time, inf4), col='darkorange')
+
+newIv <- as_tibble(z) %>%
+  mutate(time = (time - 1)/7) %>%
+  select(time, Iv1, Iv2, Iv3, Iv4) #%>% slice(1:10) #(-(1:(52*6)))
+plot(1, 1, type='n', xlim=range(newIv$time), ylim=range(select(newIv, -time)),
+  ylab='I vectors')
+lines(select(newIv, time, Iv1), col='blue')
+lines(select(newIv, time, Iv2), col='red')
+lines(select(newIv, time, Iv3), col='darkgreen')
+lines(select(newIv, time, Iv4), col='darkorange')
+
+# vectors <- z[ , str_detect(colnames(z), 'v')]
+# plot(rowSums(vectors), type='l')
 
 ##### STACKED AREA PLOTS FOR COMPARTMENTS
 source("data_stackedareaplot-MAJ.R")

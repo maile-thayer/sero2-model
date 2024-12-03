@@ -8,6 +8,7 @@ function multinom_samp(N, p)
       p = p / sum(p)
     end
     rand(Multinomial(Integer(N), p))
+#    Integer.(round.(N * p))
 end
 
 function dengue_4st_imp!(u, par, t) 
@@ -24,14 +25,14 @@ function dengue_4st_imp!(u, par, t)
     sumNm = u.Sm + u.Em1 + u.Im1 + u.Em2 + u.Im2 + u.Em3 + u.Im3 + u.Em4 + u.Im4
 
     # force of infection
-    p_infect_h1 = 1 - exp(-par.beta_h[t] * (u.Im1)/sumNm)
-    p_infect_h2 = 1 - exp(-par.beta_h[t] * (u.Im2)/sumNm)
-    p_infect_h3 = 1 - exp(-par.beta_h[t] * (u.Im3)/sumNm)
-    p_infect_h4 = 1 - exp(-par.beta_h[t] * (u.Im4)/sumNm)
-    p_infect_m1 = 1 - exp(-par.beta_m * (u.Ih_1 + u.Ih_21 + u.Ih_31 + u.Ih_41 + u.Ih_imp_1)/sumNh)
-    p_infect_m2 = 1 - exp(-par.beta_m * (u.Ih_2 + u.Ih_12 + u.Ih_32 + u.Ih_42 + u.Ih_imp_2)/sumNh)
-    p_infect_m3 = 1 - exp(-par.beta_m * (u.Ih_3 + u.Ih_13 + u.Ih_23 + u.Ih_43 + u.Ih_imp_3)/sumNh)
-    p_infect_m4 = 1 - exp(-par.beta_m * (u.Ih_4 + u.Ih_14 + u.Ih_24 + u.Ih_34 + u.Ih_imp_4)/sumNh)
+    p_infect_h1 = 1 - exp(-par.beta_h[t] * (u.Im1)/sumNh)
+    p_infect_h2 = 1 - exp(-par.beta_h[t] * (u.Im2)/sumNh)
+    p_infect_h3 = 1 - exp(-par.beta_h[t] * (u.Im3)/sumNh)
+    p_infect_h4 = 1 - exp(-par.beta_h[t] * (u.Im4)/sumNh)
+    p_infect_m1 = 1 - exp(-par.beta_m[t] * (u.Ih_1 + u.Ih_21 + u.Ih_31 + u.Ih_41 + u.Ih_imp_1)/sumNh)
+    p_infect_m2 = 1 - exp(-par.beta_m[t] * (u.Ih_2 + u.Ih_12 + u.Ih_32 + u.Ih_42 + u.Ih_imp_2)/sumNh)
+    p_infect_m3 = 1 - exp(-par.beta_m[t] * (u.Ih_3 + u.Ih_13 + u.Ih_23 + u.Ih_43 + u.Ih_imp_3)/sumNh)
+    p_infect_m4 = 1 - exp(-par.beta_m[t] * (u.Ih_4 + u.Ih_14 + u.Ih_24 + u.Ih_34 + u.Ih_imp_4)/sumNh)
         
     # state transitions
     p_birth = 1 - exp(-par.bh)
@@ -182,7 +183,7 @@ function dengue_4st_imp!(u, par, t)
     Ih3_imp_trans = multinom_samp(u.Ih_imp_3, [p_recover])
     Ih4_imp_trans = multinom_samp(u.Ih_imp_4, [p_recover])
 
-    importations = rand(Multinomial(Integer(round(100/52)), repeat([1/4], 4)))
+    importations = rand(Multinomial(Integer(par.weekly_import), repeat([1/4], 4)))
     new_imp1 = importations[1]
     new_imp2 = importations[2]
     new_imp3 = importations[3]
