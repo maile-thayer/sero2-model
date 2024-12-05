@@ -118,10 +118,12 @@ newI <- mutate(as_tibble(z),
   inf3 = Ih3 + Ih13 + Ih23 + Ih43,
   inf4 = Ih4 + Ih14 + Ih24 + Ih34,
   inf_all = inf1 + inf2 + inf3 + inf4) %>%
-  select(time, inf1, inf2, inf3, inf4, inf_all) %>% slice(-(1:(52*6)))
-plot(1, 1, type='n', xlim=range(newI$time), ylim=range(select(newI, -time)), 
+  select(time, inf1, inf2, inf3, inf4, inf_all) #%>% slice(-(1:(52*6)))
+plot(1, 1, type='n', xlim=range(newI$time), 
+  ylim=c(0, 800), 
+#  ylim=range(select(newI, -time)), 
   ylab='I humans')
-lines(select(newI, time, inf_all))
+#lines(select(newI, time, inf_all))
 lines(select(newI, time, inf1), col='blue')
 lines(select(newI, time, inf2), col='red')
 lines(select(newI, time, inf3), col='darkgreen')
