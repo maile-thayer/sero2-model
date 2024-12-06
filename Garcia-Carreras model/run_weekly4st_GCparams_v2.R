@@ -52,11 +52,11 @@ julia_exists("run_4st_model!")
 
 # set timeframe
 dt <- julia_eval("dt = 7;") # time step for the model in days (all parameters in days)
-tmax <- julia_eval("tmax = 365 * 50;") # in days
+tmax <- julia_eval("tmax = 365 * 10;") # in days
 
 # set # simulations to run-- doing it in R
 # nsims=2
-nsims <- julia_eval("nsims = 10;")
+nsims <- julia_eval("nsims = 3;")
 
 #detach(model_parameters)
 ######## HUMAN PARAMETERS ########
@@ -273,7 +273,8 @@ plot_humans_by_seroptype <- function() {
   df3 <- as.data.frame(result$newcases_st3_h)
   df4 <- as.data.frame(result$newcases_st4_h)
   
-  plot(NA, NA, xlim = c(0, tmax), ylim = c(10, max(df1, df2,df3,df4)), ylab = "New infections", xlab = "Weeks", bty = "n", log='y')
+  plot(NA, NA, xlim = c(0, tmax), ylim = c(1, max(df1, df2, df3, df4)), 
+    ylab = "New infections", xlab = "Weeks", bty = "n", log='y')
   for (i in 1:nsims) {
     lines(result$time, df1[, i], col = alpha(colors[1], 0.3))
     lines(result$time, df2[, i], col = alpha(colors[2], 0.3))
@@ -312,9 +313,9 @@ plot_I_by_seroptype <- function(plot_spp = 'humans', plot_nsims = NULL) {
     lines(result$time, df4[, i], col = alpha(colors[4], sim_alpha))
   }
 }
-plot_I_by_seroptype()
+#plot_I_by_seroptype()
 plot_I_by_seroptype(plot_nsims=1)
-plot_I_by_seroptype(plot_spp = 'vectors', plot_nsims=1)
+#plot_I_by_seroptype(plot_spp = 'vectors', plot_nsims=1)
 
 
 # df <- as.data.frame(I1dt)
@@ -347,7 +348,7 @@ plot_foi_serotype <- function(stype) {
   }
   lines(result$time, df$median, col = colors[4])
 }
-#plot_foi_serotype(1)
+plot_foi_serotype(4)
 
 plot_populations <- function() {
   df <- as.data.frame(result$hpop)
@@ -397,14 +398,50 @@ I.col <- brewer.pal(9, "YlOrRd")[8:9]
 R.col <- brewer.pal(9, "BuGn")[8:9]
 
 # Population distribution of each compartment over timeframe
+# ggplot(data, aes(x = time, y = value_perc, fill = group)) +
+#   geom_area() +
+#   theme_classic() +
+#   ggtitle("4-serotype model") +
+#   scale_fill_manual(values = c(S.col, I.col, R.col))
+
+
+# plot(beta_m_orig * beta_h_orig[1:365], col='black', type='l', lwd=2, ylim=c(0, max(beta_h * beta_m)))
+# lines(beta_m_orig * beta_h[1:365], col='darkorange', lwd=2)
+# lines(beta_m[1:365] * beta_h[1:365], col='darkred', lwd=2)
+# lines(1.8 * beta_m_orig * beta_h_orig[1:365], col='black', lty=3)
+
+data <- data_stackedareaplot2(list(
+  Sh_0 = result$Sh_0, 
+  Sh_1 = result$Sh_1,
+  Sh_2 = result$Sh_2,
+  Sh_3 = result$Sh_3,
+  Sh_4 = result$Sh_4,
+  EI_primary = result$Eh_1 + result$Eh_2 + result$Eh_3 + result$Eh_4 + 
+    result$Ih_1 + result$Ih_2 + result$Ih_3 + result$Ih_4,
+  EI_secondary = result$Eh_12 + result$Eh_13 + result$Eh_14 + 
+    result$Eh_21 + result$Eh_23 + result$Eh_24 + 
+    result$Eh_31 + result$Eh_32 + result$Eh_34 +  
+    result$Eh_41 + result$Eh_42 + result$Eh_43 +  
+    result$Ih_12 + result$Ih_13 + result$Ih_14 + 
+    result$Ih_21 + result$Ih_23 + result$Ih_24 + 
+    result$Ih_31 + result$Ih_32 + result$Ih_34 +  
+    result$Ih_41 + result$Ih_42 + result$Ih_43,
+  R_primary = result$Rh_1 + result$Rh_2 + result$Rh_3 + result$Rh_4,
+  R_secondary = result$Rh_12 + result$Rh_13 + result$Rh_14 + 
+    result$Rh_21 + result$Rh_23 + result$Rh_24 + 
+    result$Rh_31 + result$Rh_32 + result$Rh_34 +  
+    result$Rh_41 + result$Rh_42 + result$Rh_43
+), times = result$time)
+
+
+S.col <- brewer.pal(9, "GnBu")[5:9]
+E.col <- brewer.pal(9, "Purples")[8:9]
+I.col <- brewer.pal(9, "YlOrRd")[8:9]
+R.col <- brewer.pal(9, "BuGn")[8:9]
+
+# Population distribution of each compartment over timeframe
 ggplot(data, aes(x = time, y = value_perc, fill = group)) +
   geom_area() +
   theme_classic() +
   ggtitle("4-serotype model") +
   scale_fill_manual(values = c(S.col, I.col, R.col))
-
-
-plot(beta_m_orig * beta_h_orig[1:365], col='black', type='l', lwd=2, ylim=c(0, max(beta_h * beta_m)))
-lines(beta_m_orig * beta_h[1:365], col='darkorange', lwd=2)
-lines(beta_m[1:365] * beta_h[1:365], col='darkred', lwd=2)
-lines(1.8 * beta_m_orig * beta_h_orig[1:365], col='black', lty=3)
