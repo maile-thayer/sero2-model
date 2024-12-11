@@ -193,7 +193,6 @@ function dengue_4st!(u, par, t, dt)
     
     ############# MOSQUITOES ###############
     Lm_trans = multinom_samp(u.Lm, [p_mort_ml, p_emergence])
-    deaths_Lm = Lm_trans[1]
     Sm_trans = multinom_samp(u.Sm, [p_mort_m, p_infect_m1, p_infect_m2, p_infect_m3, p_infect_m4])
     new_Em1 = Sm_trans[3]
     new_Em2 = Sm_trans[4]
