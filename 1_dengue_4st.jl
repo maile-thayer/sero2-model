@@ -153,29 +153,29 @@ function dengue_4st!(u, par, t, dt)
     Ih43_trans = multinom_samp(u.Ih_43, [p_mort_h, p_recover])
     deaths += Ih43_trans[2]
     
-    Rh12_trans = multinom_samp(u.Rh_12, [p_mort_h, p_lose_cross_protection])
+    Rh12_trans = multinom_samp(u.Rh_12, [p_mort_h])
     deaths += Rh12_trans[2]
-    Rh13_trans = multinom_samp(u.Rh_13, [p_mort_h, p_lose_cross_protection])
+    Rh13_trans = multinom_samp(u.Rh_13, [p_mort_h])
     deaths += Rh13_trans[2]
-    Rh14_trans = multinom_samp(u.Rh_14, [p_mort_h, p_lose_cross_protection])
+    Rh14_trans = multinom_samp(u.Rh_14, [p_mort_h])
     deaths += Rh14_trans[2]
-    Rh21_trans = multinom_samp(u.Rh_21, [p_mort_h, p_lose_cross_protection])
+    Rh21_trans = multinom_samp(u.Rh_21, [p_mort_h])
     deaths += Rh21_trans[2]
-    Rh23_trans = multinom_samp(u.Rh_23, [p_mort_h, p_lose_cross_protection])
+    Rh23_trans = multinom_samp(u.Rh_23, [p_mort_h])
     deaths += Rh23_trans[2]
-    Rh24_trans = multinom_samp(u.Rh_24, [p_mort_h, p_lose_cross_protection])
+    Rh24_trans = multinom_samp(u.Rh_24, [p_mort_h])
     deaths += Rh24_trans[2]
-    Rh31_trans = multinom_samp(u.Rh_31, [p_mort_h, p_lose_cross_protection])
+    Rh31_trans = multinom_samp(u.Rh_31, [p_mort_h])
     deaths += Rh31_trans[2]
-    Rh32_trans = multinom_samp(u.Rh_32, [p_mort_h, p_lose_cross_protection])
+    Rh32_trans = multinom_samp(u.Rh_32, [p_mort_h])
     deaths += Rh32_trans[2]
-    Rh34_trans = multinom_samp(u.Rh_34, [p_mort_h, p_lose_cross_protection])
+    Rh34_trans = multinom_samp(u.Rh_34, [p_mort_h])
     deaths += Rh34_trans[2]
-    Rh41_trans = multinom_samp(u.Rh_41, [p_mort_h, p_lose_cross_protection])
+    Rh41_trans = multinom_samp(u.Rh_41, [p_mort_h])
     deaths += Rh41_trans[2]
-    Rh42_trans = multinom_samp(u.Rh_42, [p_mort_h, p_lose_cross_protection])
+    Rh42_trans = multinom_samp(u.Rh_42, [p_mort_h])
     deaths += Rh42_trans[2]
-    Rh43_trans = multinom_samp(u.Rh_43, [p_mort_h, p_lose_cross_protection])
+    Rh43_trans = multinom_samp(u.Rh_43, [p_mort_h])
     deaths += Rh43_trans[2]
 
     Ih1_imp_trans = multinom_samp(u.Ih_imp_1, [p_recover])
@@ -212,67 +212,66 @@ function dengue_4st!(u, par, t, dt)
 
     ###### HUMAN STATE UPDATES ######
     du = (
-      Sh_0 = u.Sh_0 - Sh0_trans[2] - new_Eh1 - new_Eh2 - new_Eh3 - new_Eh4 + births,
-      Eh_1 = u.Eh_1 - Eh1_trans[2] - Eh1_trans[3] + new_Eh1,
-      Eh_2 = u.Eh_2 - Eh2_trans[2] - Eh2_trans[3] + new_Eh2,
-      Eh_3 = u.Eh_3 - Eh3_trans[2] - Eh3_trans[3] + new_Eh3,
-      Eh_4 = u.Eh_4 - Eh4_trans[2] - Eh4_trans[3] + new_Eh4,
-      Ih_1 = u.Ih_1 - Ih1_trans[2] - Ih1_trans[3] + Eh1_trans[3],
-      Ih_2 = u.Ih_2 - Ih2_trans[2] - Ih2_trans[3] + Eh2_trans[3],
-      Ih_3 = u.Ih_3 - Ih3_trans[2] - Ih3_trans[3] + Eh3_trans[3],
-      Ih_4 = u.Ih_4 - Ih4_trans[2] - Ih4_trans[3] + Eh4_trans[3],
-      Rh_1 = u.Rh_1 - Rh1_trans[2] - Rh1_trans[3] + Ih1_trans[3],
-      Rh_2 = u.Rh_2 - Rh2_trans[2] - Rh2_trans[3] + Ih2_trans[3],
-      Rh_3 = u.Rh_3 - Rh3_trans[2] - Rh3_trans[3] + Ih3_trans[3],
-      Rh_4 = u.Rh_4 - Rh4_trans[2] - Rh4_trans[3] + Ih4_trans[3],
-      Sh_1 = u.Sh_1 - Sh1_trans[2] - new_Eh12 - new_Eh13 - new_Eh14 + Rh1_trans[3],
-      Sh_2 = u.Sh_2 - Sh2_trans[2] - new_Eh21 - new_Eh23 - new_Eh24 + Rh2_trans[3],
-      Sh_3 = u.Sh_3 - Sh3_trans[2] - new_Eh31 - new_Eh32 - new_Eh34 + Rh3_trans[3],
-      Sh_4 = u.Sh_4 - Sh4_trans[2] - new_Eh41 - new_Eh42 - new_Eh43 + Rh4_trans[3],
+      Sh_0 = Sh0_trans[1] + births,
+      Eh_1 = Eh1_trans[1] + new_Eh1,
+      Eh_2 = Eh2_trans[1] + new_Eh2,
+      Eh_3 = Eh3_trans[1] + new_Eh3,
+      Eh_4 = Eh4_trans[1] + new_Eh4,
+      Ih_1 = Ih1_trans[1] + Eh1_trans[3],
+      Ih_2 = Ih2_trans[1] + Eh2_trans[3],
+      Ih_3 = Ih3_trans[1] + Eh3_trans[3],
+      Ih_4 = Ih4_trans[1] + Eh4_trans[3],
+      Rh_1 = Rh1_trans[1] + Ih1_trans[3],
+      Rh_2 = Rh2_trans[1] + Ih2_trans[3],
+      Rh_3 = Rh3_trans[1] + Ih3_trans[3],
+      Rh_4 = Rh4_trans[1] + Ih4_trans[3],
+      Sh_2 = Sh2_trans[1] + Rh2_trans[3],
+      Sh_3 = Sh3_trans[1] + Rh3_trans[3],
+      Sh_4 = Sh4_trans[1] + Rh4_trans[3],
+      Sh_1 = Sh1_trans[1] + Rh1_trans[3],
+      Eh_12 = Eh12_trans[1] + new_Eh12,
+      Eh_13 = Eh13_trans[1] + new_Eh13,
+      Eh_14 = Eh14_trans[1] + new_Eh14,
+      Eh_21 = Eh21_trans[1] + new_Eh21,
+      Eh_23 = Eh23_trans[1] + new_Eh23,
+      Eh_24 = Eh24_trans[1] + new_Eh24,
+      Eh_31 = Eh31_trans[1] + new_Eh31,
+      Eh_32 = Eh32_trans[1] + new_Eh32,
+      Eh_34 = Eh34_trans[1] + new_Eh34,
+      Eh_41 = Eh41_trans[1] + new_Eh41,
+      Eh_42 = Eh42_trans[1] + new_Eh42,
+      Eh_43 = Eh43_trans[1] + new_Eh43,
       
-      Eh_12 = u.Eh_12 - Eh12_trans[2] - Eh12_trans[3] + new_Eh12,
-      Eh_13 = u.Eh_13 - Eh13_trans[2] - Eh13_trans[3] + new_Eh13,
-      Eh_14 = u.Eh_14 - Eh14_trans[2] - Eh14_trans[3] + new_Eh14,
-      Eh_21 = u.Eh_21 - Eh21_trans[2] - Eh21_trans[3] + new_Eh21,
-      Eh_23 = u.Eh_23 - Eh23_trans[2] - Eh23_trans[3] + new_Eh23,
-      Eh_24 = u.Eh_24 - Eh24_trans[2] - Eh24_trans[3] + new_Eh24,
-      Eh_31 = u.Eh_31 - Eh31_trans[2] - Eh31_trans[3] + new_Eh31,
-      Eh_32 = u.Eh_32 - Eh32_trans[2] - Eh32_trans[3] + new_Eh32,
-      Eh_34 = u.Eh_34 - Eh34_trans[2] - Eh34_trans[3] + new_Eh34,
-      Eh_41 = u.Eh_41 - Eh41_trans[2] - Eh41_trans[3] + new_Eh41,
-      Eh_42 = u.Eh_42 - Eh42_trans[2] - Eh42_trans[3] + new_Eh42,
-      Eh_43 = u.Eh_43 - Eh43_trans[2] - Eh43_trans[3] + new_Eh43,
+      Ih_12 = Ih12_trans[1] + Eh12_trans[3],
+      Ih_13 = Ih13_trans[1] + Eh13_trans[3],
+      Ih_14 = Ih14_trans[1] + Eh14_trans[3],
+      Ih_21 = Ih21_trans[1] + Eh21_trans[3],
+      Ih_23 = Ih23_trans[1] + Eh23_trans[3],
+      Ih_24 = Ih24_trans[1] + Eh24_trans[3],
+      Ih_31 = Ih31_trans[1] + Eh31_trans[3],
+      Ih_32 = Ih32_trans[1] + Eh32_trans[3],
+      Ih_34 = Ih34_trans[1] + Eh34_trans[3],
+      Ih_41 = Ih41_trans[1] + Eh41_trans[3],
+      Ih_42 = Ih42_trans[1] + Eh42_trans[3],
+      Ih_43 = Ih43_trans[1] + Eh43_trans[3],
       
-      Ih_12 = u.Ih_12 - Ih12_trans[2] - Ih12_trans[3] + Eh12_trans[3],
-      Ih_13 = u.Ih_13 - Ih13_trans[2] - Ih13_trans[3] + Eh13_trans[3],
-      Ih_14 = u.Ih_14 - Ih14_trans[2] - Ih14_trans[3] + Eh14_trans[3],
-      Ih_21 = u.Ih_21 - Ih21_trans[2] - Ih21_trans[3] + Eh21_trans[3],
-      Ih_23 = u.Ih_23 - Ih23_trans[2] - Ih23_trans[3] + Eh23_trans[3],
-      Ih_24 = u.Ih_24 - Ih24_trans[2] - Ih24_trans[3] + Eh24_trans[3],
-      Ih_31 = u.Ih_31 - Ih31_trans[2] - Ih31_trans[3] + Eh31_trans[3],
-      Ih_32 = u.Ih_32 - Ih32_trans[2] - Ih32_trans[3] + Eh32_trans[3],
-      Ih_34 = u.Ih_34 - Ih34_trans[2] - Ih34_trans[3] + Eh34_trans[3],
-      Ih_41 = u.Ih_41 - Ih41_trans[2] - Ih41_trans[3] + Eh41_trans[3],
-      Ih_42 = u.Ih_42 - Ih42_trans[2] - Ih42_trans[3] + Eh42_trans[3],
-      Ih_43 = u.Ih_43 - Ih43_trans[2] - Ih43_trans[3] + Eh43_trans[3],
-      
-      Rh_12 = u.Rh_12 - Rh12_trans[2] + Ih12_trans[3],
-      Rh_13 = u.Rh_13 - Rh13_trans[2] + Ih13_trans[3],
-      Rh_14 = u.Rh_14 - Rh14_trans[2] + Ih14_trans[3],
-      Rh_21 = u.Rh_21 - Rh21_trans[2] + Ih21_trans[3],
-      Rh_23 = u.Rh_23 - Rh23_trans[2] + Ih23_trans[3],
-      Rh_24 = u.Rh_24 - Rh24_trans[2] + Ih24_trans[3],
-      Rh_31 = u.Rh_31 - Rh31_trans[2] + Ih31_trans[3],
-      Rh_32 = u.Rh_32 - Rh32_trans[2] + Ih32_trans[3],
-      Rh_34 = u.Rh_34 - Rh34_trans[2] + Ih34_trans[3],
-      Rh_41 = u.Rh_41 - Rh41_trans[2] + Ih41_trans[3],
-      Rh_42 = u.Rh_42 - Rh42_trans[2] + Ih42_trans[3],
-      Rh_43 = u.Rh_43 - Rh43_trans[2] + Ih43_trans[3],
+      Rh_12 = Rh12_trans[1] + Ih12_trans[3],
+      Rh_13 = Rh13_trans[1] + Ih13_trans[3],
+      Rh_14 = Rh14_trans[1] + Ih14_trans[3],
+      Rh_21 = Rh21_trans[1] + Ih21_trans[3],
+      Rh_23 = Rh23_trans[1] + Ih23_trans[3],
+      Rh_24 = Rh24_trans[1] + Ih24_trans[3],
+      Rh_31 = Rh31_trans[1] + Ih31_trans[3],
+      Rh_32 = Rh32_trans[1] + Ih32_trans[3],
+      Rh_34 = Rh34_trans[1] + Ih34_trans[3],
+      Rh_41 = Rh41_trans[1] + Ih41_trans[3],
+      Rh_42 = Rh42_trans[1] + Ih42_trans[3],
+      Rh_43 = Rh43_trans[1] + Ih43_trans[3],
     
-      Ih_imp_1 = u.Ih_imp_1 - Ih1_imp_trans[2] + new_imp1,
-      Ih_imp_2 = u.Ih_imp_2 - Ih2_imp_trans[2] + new_imp2, 
-      Ih_imp_3 = u.Ih_imp_3 - Ih3_imp_trans[2] + new_imp3,
-      Ih_imp_4 = u.Ih_imp_4 - Ih4_imp_trans[2] + new_imp4,
+      Ih_imp_1 = Ih1_imp_trans[1] + new_imp1,
+      Ih_imp_2 = Ih2_imp_trans[1] + new_imp2, 
+      Ih_imp_3 = Ih3_imp_trans[1] + new_imp3,
+      Ih_imp_4 = Ih4_imp_trans[1] + new_imp4,
 
       ###### MOSQUITO STATE UPDATES ######
       Lm = Lm_trans[1] + eggs,
@@ -286,7 +285,7 @@ function dengue_4st!(u, par, t, dt)
       Im3 = Im3_trans[1] + Em3_trans[3],
       Im4 = Im4_trans[1] + Em4_trans[3],
       )
-
+    
     ###### OUTPUT OBJECTS ######
     newcases_all_h = new_Eh1 + new_Eh2 + new_Eh3 + new_Eh4 + 
                     new_Eh12 + new_Eh13 + new_Eh14 + 
