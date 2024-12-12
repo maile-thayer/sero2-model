@@ -52,7 +52,7 @@ julia_exists("run_2inf_model!")
 
 # set timeframe
 dt <- julia_eval("dt = 7;") # time step for the model in days (all parameters in days)
-tmax <- julia_eval("tmax = 365 * 10;") # in days
+tmax <- julia_eval("tmax = 365 * 50;") # in days
 
 # set # simulations to run-- doing it in R
 # nsims=2
@@ -249,13 +249,13 @@ plot_all_humans <- function() {
     y = df[, i]
     lw1 <- loess(y ~ result$time)
     # j <- order(df[, i])
-    lines(x, lw1$fitted, col="red")
+    lines(result$time, lw1$fitted, col="red")
   }
 }
 plot_all_humans()
 
 # primary and secondary
-plot_humans_by_type <- function() {
+plot_humans_by_type <- function(sims_to_plot) {
   df1 <- as.data.frame(result$newcases_primary_h)
   df2 <- as.data.frame(result$newcases_secondary_h)
   
@@ -265,12 +265,13 @@ plot_humans_by_type <- function() {
 #    ylim = c(1, max(df1, df2)), 
     #log='y',
     ylab = "New infections", xlab = "Days", bty = "n")
-  for (i in 1:nsims) {
+  for (i in 1:sims_to_plot) {
     lines(result$time, df1[, i], col = alpha(colors[1], 0.3))
     lines(result$time, df2[, i], col = alpha(colors[2], 0.3))
   }
 }
-plot_humans_by_type()
+plot_humans_by_type(nsims)
+plot_humans_by_type(1)
 
 
 ############### FOI
